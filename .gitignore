@@ -5,6 +5,8 @@ package-lock.json
 # Next.js build output
 .next/
 out/
+# Keep docs folder for GitHub Pages
+!docs/
 
 # Production
 /build
