@@ -1,5 +1,147 @@
 import { useState, useEffect, useRef } from 'react';
 
+// Translations
+const translations = {
+  de: {
+    title: "Red Flag oder Green Flag?",
+    titleShort: "Red/Green Flag",
+    upgradeToPremium: "⭐ Premium werden",
+    premium: "⭐ Premium",
+    votesLeft: "übrig",
+    votesLeftToday: "Votes heute übrig",
+    votes: "Votes",
+    dayStreak: "Tag",
+    feed: "Feed",
+    trending: "Trending",
+    top: "Top",
+    favorites: "Favoriten",
+    submit: "Einreichen",
+    mySubmissions: "Meine Beiträge",
+    all: "Alle",
+    datingRelationships: "Dating/Beziehung",
+    friendship: "Freundschaft",
+    workBoss: "Arbeit/Chef",
+    family: "Familie",
+    roommate: "Mitbewohner",
+    money: "Geld",
+    schoolUni: "Schule/Uni",
+    other: "Sonstiges",
+    situation: "Situation",
+    of: "von",
+    redFlag: "RED FLAG",
+    greenFlag: "GREEN FLAG",
+    undo: "Zurück",
+    skip: "Überspringen",
+    share: "Teilen",
+    swipeHint: "💡 Wische links für 🚩 • Wische rechts für ✅ • Pfeiltasten funktionieren auch!",
+    swipeHintMobile: "💡 Wische oder tippe zum Voten",
+    voteRecorded: "✓ Dein Vote wurde aufgenommen!",
+    loadingNext: "Lade nächste Situation...",
+    trendingSituations: "🔥 Trending Situationen",
+    trendingDesc: "Kontroverseste Votes (nahe an 50/50)",
+    topVoted: "🏆 Top Gevotete Situationen",
+    topVotedDesc: "Meist gevotete Situationen der Community",
+    yourFavorites: "⭐ Deine Favoriten",
+    noFavorites: "Noch keine Favoriten! Markiere Situationen zum Speichern.",
+    browseFeed: "Feed durchsuchen",
+    totalVotes: "Votes insgesamt",
+    submitYourSituation: "Reiche deine Situation ein",
+    category: "Kategorie",
+    yourSituation: "Deine Situation",
+    placeholder: "Beschreibe deine Situation... (10-300 Zeichen)",
+    minChars: "(mindestens 10 Zeichen)",
+    submitSituation: "Situation einreichen",
+    guidelines: "📋 Richtlinien",
+    guidelineAnonymous: "✓ Halte es anonym (keine Namen oder identifizierende Infos)",
+    guidelineRespectful: "✓ Sei respektvoll und ehrlich",
+    guidelineNoHate: "✗ Keine Hassrede oder Belästigung",
+    guidelineNoExplicit: "✗ Keine expliziten Inhalte",
+    noSubmissions: "Du hast noch nichts eingereicht!",
+    submitFirst: "Reiche deine erste Situation ein",
+    noVotes: "Noch keine Votes",
+    footer: "Die Community, die Gen Z bei schwierigen Lebensentscheidungen hilft",
+    privacy: "Datenschutz",
+    terms: "Nutzungsbedingungen",
+    contact: "Kontakt",
+    copyright: "© 2024 Red Flag or Green Flag. Alle Rechte vorbehalten.",
+    voteLimitReached: "🔒 Du hast dein Tageslimit von 5 Votes erreicht! Werde Premium für unbegrenzte Votes.",
+    pleaseWrite10: "Bitte schreibe mindestens 10 Zeichen",
+    max300chars: "Maximal 300 Zeichen erlaubt",
+    situationSubmitted: "✅ Deine Situation wurde eingereicht!",
+    linkCopied: "✅ Link in Zwischenablage kopiert!",
+    shareCancelled: "Teilen abgebrochen"
+  },
+  en: {
+    title: "Red Flag or Green Flag?",
+    titleShort: "Red/Green Flag",
+    upgradeToPremium: "⭐ Upgrade to Premium",
+    premium: "⭐ Premium",
+    votesLeft: "left",
+    votesLeftToday: "votes left today",
+    votes: "votes",
+    dayStreak: "day",
+    feed: "Feed",
+    trending: "Trending",
+    top: "Top",
+    favorites: "Favorites",
+    submit: "Submit",
+    mySubmissions: "My Submissions",
+    all: "All",
+    datingRelationships: "Dating/Relationships",
+    friendship: "Friendship",
+    workBoss: "Work/Boss",
+    family: "Family",
+    roommate: "Roommate",
+    money: "Money",
+    schoolUni: "School/Uni",
+    other: "Other",
+    situation: "Situation",
+    of: "of",
+    redFlag: "RED FLAG",
+    greenFlag: "GREEN FLAG",
+    undo: "Undo",
+    skip: "Skip",
+    share: "Share",
+    swipeHint: "💡 Swipe left for 🚩 • Swipe right for ✅ • Arrow keys work too!",
+    swipeHintMobile: "💡 Swipe or tap to vote",
+    voteRecorded: "✓ Your vote has been recorded!",
+    loadingNext: "Loading next situation...",
+    trendingSituations: "🔥 Trending Situations",
+    trendingDesc: "Most controversial votes (close to 50/50 split)",
+    topVoted: "🏆 Top Voted Situations",
+    topVotedDesc: "Most voted situations by the community",
+    yourFavorites: "⭐ Your Favorites",
+    noFavorites: "No favorites yet! Star situations you want to save.",
+    browseFeed: "Browse Feed",
+    totalVotes: "total votes",
+    submitYourSituation: "Submit Your Situation",
+    category: "Category",
+    yourSituation: "Your Situation",
+    placeholder: "Describe your situation... (10-300 characters)",
+    minChars: "(minimum 10 characters)",
+    submitSituation: "Submit Situation",
+    guidelines: "📋 Guidelines",
+    guidelineAnonymous: "✓ Keep it anonymous (no names or identifying info)",
+    guidelineRespectful: "✓ Be respectful and honest",
+    guidelineNoHate: "✗ No hate speech or harassment",
+    guidelineNoExplicit: "✗ No explicit content",
+    noSubmissions: "You haven't submitted anything yet!",
+    submitFirst: "Submit Your First Situation",
+    noVotes: "No votes yet",
+    footer: "The community helping Gen Z navigate life's tough decisions",
+    privacy: "Privacy",
+    terms: "Terms",
+    contact: "Contact",
+    copyright: "© 2024 Red Flag or Green Flag. All rights reserved.",
+    voteLimitReached: "🔒 You've reached your daily limit of 5 votes! Upgrade to Premium for unlimited voting.",
+    pleaseWrite10: "Please write at least 10 characters",
+    max300chars: "Maximum 300 characters allowed",
+    situationSubmitted: "✅ Your situation has been submitted!",
+    linkCopied: "✅ Link copied to clipboard!",
+    shareCancelled: "Share cancelled"
+  }
+};
+
 // Seed Data - 50 Situations
 const seedSubmissions = [
   { id: 1, text: "He asked me to split the bill on our first date", category: "Dating/Relationships", votes: { red: 245, green: 432 } },
@@ -54,18 +196,6 @@ const seedSubmissions = [
   { id: 50, text: "My landlord refused to fix the broken heater for 2 weeks", category: "Other", votes: { red: 912, green: 34 } }
 ];
 
-const categories = [
-  "All",
-  "Dating/Relationships",
-  "Friendship",
-  "Work/Boss",
-  "Family",
-  "Roommate",
-  "Money",
-  "School/Uni",
-  "Other"
-];
-
 export default function Home() {
   const [view, setView] = useState('feed');
   const [submissions, setSubmissions] = useState([]);
@@ -84,6 +214,7 @@ export default function Home() {
   const [lastVoteDate, setLastVoteDate] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [cardAnimation, setCardAnimation] = useState('');
+  const [language, setLanguage] = useState('de');
 
   const cardRef = useRef(null);
   const touchStartX = useRef(0);
@@ -93,6 +224,25 @@ export default function Home() {
     text: '',
     category: 'Dating/Relationships'
   });
+
+  // Translation helper
+  const t = (key) => translations[language][key] || key;
+
+  // Get translated categories
+  const getCategories = () => [
+    t('all'),
+    t('datingRelationships'),
+    t('friendship'),
+    t('workBoss'),
+    t('family'),
+    t('roommate'),
+    t('money'),
+    t('schoolUni'),
+    t('other')
+  ];
+
+  // Use categories based on current language
+  const categories = getCategories();
 
   // LocalStorage persistence
   useEffect(() => {
@@ -106,6 +256,7 @@ export default function Home() {
         const storedDailyVotes = localStorage.getItem('dailyVotes');
         const storedPremium = localStorage.getItem('isPremium');
         const storedSound = localStorage.getItem('soundEnabled');
+        const storedLanguage = localStorage.getItem('language');
 
         if (storedVotes) setUserVotes(JSON.parse(storedVotes));
         if (storedFavorites) setFavorites(new Set(JSON.parse(storedFavorites)));
@@ -114,6 +265,7 @@ export default function Home() {
         if (storedLastDate) setLastVoteDate(storedLastDate);
         if (storedPremium) setIsPremium(JSON.parse(storedPremium));
         if (storedSound) setSoundEnabled(JSON.parse(storedSound));
+        if (storedLanguage) setLanguage(storedLanguage);
 
         // Reset daily votes if new day
         const today = new Date().toDateString();
@@ -142,10 +294,11 @@ export default function Home() {
       localStorage.setItem('dailyVotes', dailyVotes.toString());
       localStorage.setItem('isPremium', JSON.stringify(isPremium));
       localStorage.setItem('soundEnabled', JSON.stringify(soundEnabled));
+      localStorage.setItem('language', language);
     } catch (error) {
       console.error('Error saving to localStorage:', error);
     }
-  }, [userVotes, favorites, userSubmissions, votingStreak, dailyVotes, isPremium, soundEnabled]);
+  }, [userVotes, favorites, userSubmissions, votingStreak, dailyVotes, isPremium, soundEnabled, language]);
 
   // Initialize submissions
   useEffect(() => {
@@ -272,7 +425,7 @@ export default function Home() {
     if (!currentSubmission) return;
 
     if (!isPremium && dailyVotes >= 5) {
-      alert('🔒 You\'ve reached your daily limit of 5 votes! Upgrade to Premium for unlimited voting.');
+      alert(t('voteLimitReached'));
       return;
     }
 
@@ -379,7 +532,7 @@ export default function Home() {
       }
     } else {
       navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-      alert('✅ Link copied to clipboard!');
+      alert(t('linkCopied'));
     }
   };
 
@@ -387,12 +540,12 @@ export default function Home() {
     e.preventDefault();
 
     if (newSubmission.text.length < 10) {
-      alert('Please write at least 10 characters');
+      alert(t('pleaseWrite10'));
       return;
     }
 
     if (newSubmission.text.length > 300) {
-      alert('Maximum 300 characters allowed');
+      alert(t('max300chars'));
       return;
     }
 
@@ -407,7 +560,7 @@ export default function Home() {
     setSubmissions([submission, ...submissions]);
 
     setNewSubmission({ text: '', category: 'Dating/Relationships' });
-    alert('✅ Your situation has been submitted!');
+    alert(t('situationSubmitted'));
     setView('feed');
   };
 
@@ -478,8 +631,8 @@ export default function Home() {
             <div className="flex items-center space-x-1 sm:space-x-2">
               <span className="text-2xl sm:text-3xl">🚩</span>
               <h1 className="text-base sm:text-xl md:text-2xl font-bold whitespace-nowrap">
-                <span className="hidden sm:inline">Red Flag or Green Flag?</span>
-                <span className="sm:hidden">Red/Green Flag</span>
+                <span className="hidden sm:inline">{t('title')}</span>
+                <span className="sm:hidden">{t('titleShort')}</span>
               </h1>
               <span className="text-2xl sm:text-3xl">✅</span>
             </div>
@@ -489,7 +642,7 @@ export default function Home() {
               {/* Streak Badge */}
               {votingStreak > 0 && (
                 <div className="px-2 py-1 sm:px-3 bg-orange-600 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap">
-                  🔥 <span className="hidden xs:inline">{votingStreak} day</span>
+                  🔥 <span className="hidden xs:inline">{votingStreak} {t('dayStreak')}</span>
                   <span className="xs:hidden">{votingStreak}d</span>
                 </div>
               )}
@@ -503,6 +656,15 @@ export default function Home() {
                 <span className="text-lg sm:text-xl">{soundEnabled ? '🔊' : '🔇'}</span>
               </button>
 
+              {/* Language Toggle */}
+              <button
+                onClick={() => setLanguage(language === 'de' ? 'en' : 'de')}
+                className="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg text-xs sm:text-sm font-semibold transition touch-manipulation whitespace-nowrap"
+                title="Switch language / Sprache wechseln"
+              >
+                {language === 'de' ? '🇬🇧 EN' : '🇩🇪 DE'}
+              </button>
+
               {/* Premium Button / Badge */}
               {!isPremium ? (
                 <div className="flex items-center gap-2">
@@ -510,16 +672,16 @@ export default function Home() {
                     onClick={() => setIsPremium(true)}
                     className="px-2 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-xs sm:text-sm font-semibold hover:opacity-90 transition touch-manipulation whitespace-nowrap"
                   >
-                    <span className="hidden sm:inline">⭐ Upgrade to Premium</span>
-                    <span className="sm:hidden">⭐ Premium</span>
+                    <span className="hidden sm:inline">{t('upgradeToPremium')}</span>
+                    <span className="sm:hidden">{t('premium')}</span>
                   </button>
                   <span className="hidden md:inline text-xs sm:text-sm text-gray-400 whitespace-nowrap">
-                    {5 - dailyVotes} left
+                    {5 - dailyVotes} {t('votesLeft')}
                   </span>
                 </div>
               ) : (
                 <span className="px-2 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap">
-                  ⭐ Premium
+                  {t('premium')}
                 </span>
               )}
             </div>
@@ -529,7 +691,7 @@ export default function Home() {
           {!isPremium && (
             <div className="md:hidden mt-2 text-center">
               <span className="text-xs text-gray-400">
-                {5 - dailyVotes} votes left today
+                {5 - dailyVotes} {t('votesLeftToday')}
               </span>
             </div>
           )}
@@ -548,7 +710,7 @@ export default function Home() {
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              <span className="hidden sm:inline">📱 Feed</span>
+              <span className="hidden sm:inline">📱 {t('feed')}</span>
               <span className="sm:hidden">📱</span>
             </button>
             <button
@@ -559,7 +721,7 @@ export default function Home() {
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              <span className="hidden sm:inline">🔥 Trending</span>
+              <span className="hidden sm:inline">🔥 {t('trending')}</span>
               <span className="sm:hidden">🔥</span>
             </button>
             <button
@@ -570,7 +732,7 @@ export default function Home() {
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              <span className="hidden sm:inline">🏆 Top</span>
+              <span className="hidden sm:inline">🏆 {t('top')}</span>
               <span className="sm:hidden">🏆</span>
             </button>
             <button
@@ -581,7 +743,7 @@ export default function Home() {
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              <span className="hidden sm:inline">⭐ Favorites ({favorites.size})</span>
+              <span className="hidden sm:inline">⭐ {t('favorites')} ({favorites.size})</span>
               <span className="sm:hidden">⭐ {favorites.size}</span>
             </button>
             <button
@@ -592,7 +754,7 @@ export default function Home() {
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              <span className="hidden sm:inline">✍️ Submit</span>
+              <span className="hidden sm:inline">✍️ {t('submit')}</span>
               <span className="sm:hidden">✍️</span>
             </button>
             <button
@@ -603,7 +765,7 @@ export default function Home() {
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              <span className="hidden sm:inline">📊 My Submissions</span>
+              <span className="hidden sm:inline">📊 {t('mySubmissions')}</span>
               <span className="sm:hidden">📊</span>
             </button>
           </div>
@@ -644,7 +806,7 @@ export default function Home() {
             {/* Progress Indicator */}
             <div className="mb-4 flex items-center justify-between">
               <div className="text-sm text-gray-400">
-                Situation {currentIndex + 1} of {filteredSubmissions.length}
+                {t('situation')} {currentIndex + 1} {t('of')} {filteredSubmissions.length}
               </div>
               <div className="w-48 bg-gray-700 rounded-full h-2">
                 <div
@@ -680,7 +842,7 @@ export default function Home() {
                       className="w-full sm:flex-1 bg-red-flag hover:bg-red-600 active:bg-red-700 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold text-base sm:text-lg transition transform active:scale-95 sm:hover:scale-105 flex items-center justify-center gap-2 touch-manipulation"
                     >
                       <span className="text-xl sm:text-2xl">🚩</span>
-                      <span>RED FLAG</span>
+                      <span>{t('redFlag')}</span>
                     </button>
 
                     <button
@@ -688,7 +850,7 @@ export default function Home() {
                       className="w-full sm:flex-1 bg-green-flag hover:bg-green-600 active:bg-green-700 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold text-base sm:text-lg transition transform active:scale-95 sm:hover:scale-105 flex items-center justify-center gap-2 touch-manipulation"
                     >
                       <span className="text-xl sm:text-2xl">✅</span>
-                      <span>GREEN FLAG</span>
+                      <span>{t('greenFlag')}</span>
                     </button>
                   </div>
 
@@ -699,28 +861,28 @@ export default function Home() {
                       disabled={voteHistory.length === 0}
                       className="px-3 sm:px-4 py-2 bg-gray-700 hover:bg-gray-600 active:bg-gray-500 rounded-lg text-sm sm:text-base font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                     >
-                      <span className="hidden xs:inline">↩️ Undo</span>
+                      <span className="hidden xs:inline">↩️ {t('undo')}</span>
                       <span className="xs:hidden">↩️</span>
                     </button>
                     <button
                       onClick={handleSkip}
                       className="px-3 sm:px-4 py-2 bg-gray-700 hover:bg-gray-600 active:bg-gray-500 rounded-lg text-sm sm:text-base font-semibold transition touch-manipulation"
                     >
-                      <span className="hidden xs:inline">⏭️ Skip</span>
+                      <span className="hidden xs:inline">⏭️ {t('skip')}</span>
                       <span className="xs:hidden">⏭️</span>
                     </button>
                     <button
                       onClick={() => handleShare(currentSubmission)}
                       className="px-3 sm:px-4 py-2 bg-gray-700 hover:bg-gray-600 active:bg-gray-500 rounded-lg text-sm sm:text-base font-semibold transition touch-manipulation"
                     >
-                      <span className="hidden xs:inline">📤 Share</span>
+                      <span className="hidden xs:inline">📤 {t('share')}</span>
                       <span className="xs:hidden">📤</span>
                     </button>
                   </div>
 
                   <div className="mt-3 sm:mt-4 text-center text-xs sm:text-sm text-gray-500">
-                    <span className="hidden sm:inline">💡 Swipe left for 🚩 • Swipe right for ✅ • Arrow keys work too!</span>
-                    <span className="sm:hidden">💡 Swipe or tap to vote</span>
+                    <span className="hidden sm:inline">{t('swipeHint')}</span>
+                    <span className="sm:hidden">{t('swipeHintMobile')}</span>
                   </div>
                 </div>
               </div>
@@ -744,7 +906,7 @@ export default function Home() {
                       <div className="flex justify-between mb-2">
                         <span className="flex items-center space-x-2">
                           <span className="text-2xl">🚩</span>
-                          <span className="font-bold">Red Flag</span>
+                          <span className="font-bold">{t('redFlag')}</span>
                         </span>
                         <span className="font-bold text-red-flag">
                           {calculatePercentages(currentResults).red}%
@@ -757,7 +919,7 @@ export default function Home() {
                         ></div>
                       </div>
                       <div className="text-right text-sm text-gray-400 mt-1">
-                        {currentResults.votes.red.toLocaleString()} votes
+                        {currentResults.votes.red.toLocaleString()} {t('votes')}
                       </div>
                     </div>
 
@@ -765,7 +927,7 @@ export default function Home() {
                       <div className="flex justify-between mb-2">
                         <span className="flex items-center space-x-2">
                           <span className="text-2xl">✅</span>
-                          <span className="font-bold">Green Flag</span>
+                          <span className="font-bold">{t('greenFlag')}</span>
                         </span>
                         <span className="font-bold text-green-flag">
                           {calculatePercentages(currentResults).green}%
@@ -778,17 +940,17 @@ export default function Home() {
                         ></div>
                       </div>
                       <div className="text-right text-sm text-gray-400 mt-1">
-                        {currentResults.votes.green.toLocaleString()} votes
+                        {currentResults.votes.green.toLocaleString()} {t('votes')}
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-8 text-center">
                     <p className="text-green-flag font-semibold text-lg">
-                      ✓ Your vote has been recorded!
+                      {t('voteRecorded')}
                     </p>
                     <p className="text-gray-400 text-sm mt-2">
-                      Loading next situation...
+                      {t('loadingNext')}
                     </p>
                   </div>
                 </div>
@@ -801,8 +963,8 @@ export default function Home() {
         {view === 'trending' && (
           <div className="space-y-4">
             <div className="mb-6">
-              <h2 className="text-3xl font-bold mb-2">🔥 Trending Situations</h2>
-              <p className="text-gray-400">Most controversial votes (close to 50/50 split)</p>
+              <h2 className="text-3xl font-bold mb-2">{t('trendingSituations')}</h2>
+              <p className="text-gray-400">{t('trendingDesc')}</p>
             </div>
             {getTrendingSubmissions().map((sub) => {
               const percentages = calculatePercentages(sub);
@@ -851,12 +1013,12 @@ export default function Home() {
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <p className="text-sm text-gray-400">{total} total votes</p>
+                      <p className="text-sm text-gray-400">{total} {t('totalVotes')}</p>
                       <button
                         onClick={() => handleShare(sub)}
                         className="text-sm text-gray-400 hover:text-green-flag transition"
                       >
-                        📤 Share
+                        📤 {t('share')}
                       </button>
                     </div>
                   </div>
@@ -870,8 +1032,8 @@ export default function Home() {
         {view === 'top' && (
           <div className="space-y-4">
             <div className="mb-6">
-              <h2 className="text-3xl font-bold mb-2">🏆 Top Voted Situations</h2>
-              <p className="text-gray-400">Most voted situations by the community</p>
+              <h2 className="text-3xl font-bold mb-2">{t('topVoted')}</h2>
+              <p className="text-gray-400">{t('topVotedDesc')}</p>
             </div>
             {getTopSubmissions().map((sub, index) => {
               const percentages = calculatePercentages(sub);
@@ -923,12 +1085,12 @@ export default function Home() {
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <p className="text-sm text-gray-400">{total} total votes</p>
+                      <p className="text-sm text-gray-400">{total} {t('totalVotes')}</p>
                       <button
                         onClick={() => handleShare(sub)}
                         className="text-sm text-gray-400 hover:text-green-flag transition"
                       >
-                        📤 Share
+                        📤 {t('share')}
                       </button>
                     </div>
                   </div>
@@ -941,17 +1103,17 @@ export default function Home() {
         {/* Favorites View */}
         {view === 'favorites' && (
           <div className="space-y-4">
-            <h2 className="text-3xl font-bold mb-6">⭐ Your Favorites</h2>
+            <h2 className="text-3xl font-bold mb-6">{t('yourFavorites')}</h2>
             {getFavoriteSubmissions().length === 0 ? (
               <div className="bg-card-dark rounded-2xl p-12 text-center">
                 <p className="text-gray-400 text-lg mb-4">
-                  No favorites yet! Star situations you want to save.
+                  {t('noFavorites')}
                 </p>
                 <button
                   onClick={() => setView('feed')}
                   className="bg-green-flag hover:bg-green-600 text-white py-3 px-6 rounded-lg font-semibold transition"
                 >
-                  Browse Feed
+                  {t('browseFeed')}
                 </button>
               </div>
             ) : (
@@ -1021,11 +1183,11 @@ export default function Home() {
         {/* Submit View */}
         {view === 'submit' && (
           <div className="bg-card-dark rounded-2xl p-8 shadow-2xl">
-            <h2 className="text-3xl font-bold mb-6">Submit Your Situation</h2>
+            <h2 className="text-3xl font-bold mb-6">{t('submitYourSituation')}</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Category
+                  {t('category')}
                 </label>
                 <select
                   value={newSubmission.category}
@@ -1044,19 +1206,19 @@ export default function Home() {
 
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Your Situation
+                  {t('yourSituation')}
                 </label>
                 <textarea
                   value={newSubmission.text}
                   onChange={(e) =>
                     setNewSubmission({ ...newSubmission, text: e.target.value })
                   }
-                  placeholder="Describe your situation... (10-300 characters)"
+                  placeholder={t('placeholder')}
                   className="w-full px-4 py-3 bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-flag h-32 resize-none"
                   maxLength={300}
                 />
                 <div className={`text-right text-sm mt-1 font-semibold ${charCountColor}`}>
-                  {charCount}/300 {charCount < 10 && '(minimum 10 characters)'}
+                  {charCount}/300 {charCount < 10 && t('minChars')}
                 </div>
               </div>
 
@@ -1064,17 +1226,17 @@ export default function Home() {
                 type="submit"
                 className="w-full bg-green-flag hover:bg-green-600 text-white py-4 px-6 rounded-xl font-bold text-lg transition"
               >
-                Submit Situation
+                {t('submitSituation')}
               </button>
             </form>
 
             <div className="mt-8 p-4 bg-gray-700 rounded-lg">
-              <h3 className="font-semibold mb-2">📋 Guidelines</h3>
+              <h3 className="font-semibold mb-2">{t('guidelines')}</h3>
               <ul className="text-sm text-gray-300 space-y-1">
-                <li>✓ Keep it anonymous (no names or identifying info)</li>
-                <li>✓ Be respectful and honest</li>
-                <li>✗ No hate speech or harassment</li>
-                <li>✗ No explicit content</li>
+                <li>{t('guidelineAnonymous')}</li>
+                <li>{t('guidelineRespectful')}</li>
+                <li>{t('guidelineNoHate')}</li>
+                <li>{t('guidelineNoExplicit')}</li>
               </ul>
             </div>
           </div>
@@ -1083,17 +1245,17 @@ export default function Home() {
         {/* My Submissions View */}
         {view === 'mysubmissions' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold">My Submissions</h2>
+            <h2 className="text-3xl font-bold">{t('mySubmissions')}</h2>
             {userSubmissions.length === 0 ? (
               <div className="bg-card-dark rounded-2xl p-12 text-center">
                 <p className="text-gray-400 text-lg mb-4">
-                  You haven't submitted anything yet!
+                  {t('noSubmissions')}
                 </p>
                 <button
                   onClick={() => setView('submit')}
                   className="bg-green-flag hover:bg-green-600 text-white py-3 px-6 rounded-lg font-semibold transition"
                 >
-                  Submit Your First Situation
+                  {t('submitFirst')}
                 </button>
               </div>
             ) : (
@@ -1144,7 +1306,7 @@ export default function Home() {
                           </p>
                         </div>
                       ) : (
-                        <p className="text-gray-400 text-center">No votes yet</p>
+                        <p className="text-gray-400 text-center">{t('noVotes')}</p>
                       )}
                     </div>
                   );
@@ -1160,24 +1322,24 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="text-center text-gray-400 space-y-2">
             <p className="text-lg font-semibold text-white">
-              Red Flag or Green Flag?
+              {t('title')}
             </p>
             <p className="text-sm">
-              The community helping Gen Z navigate life's tough decisions
+              {t('footer')}
             </p>
             <div className="flex justify-center space-x-6 mt-4">
               <a href="#" className="hover:text-green-flag transition">
-                Privacy
+                {t('privacy')}
               </a>
               <a href="#" className="hover:text-green-flag transition">
-                Terms
+                {t('terms')}
               </a>
               <a href="#" className="hover:text-green-flag transition">
-                Contact
+                {t('contact')}
               </a>
             </div>
             <p className="text-xs mt-4">
-              © 2024 Red Flag or Green Flag. All rights reserved.
+              {t('copyright')}
             </p>
           </div>
         </div>
