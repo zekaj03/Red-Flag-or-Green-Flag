@@ -472,112 +472,139 @@ export default function Home() {
 
       {/* Header */}
       <header className="bg-card-dark border-b border-gray-700 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="text-3xl">🚩</span>
-              <h1 className="text-2xl font-bold">Red Flag or Green Flag?</h1>
-              <span className="text-3xl">✅</span>
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            {/* Logo & Title */}
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <span className="text-2xl sm:text-3xl">🚩</span>
+              <h1 className="text-base sm:text-xl md:text-2xl font-bold whitespace-nowrap">
+                <span className="hidden sm:inline">Red Flag or Green Flag?</span>
+                <span className="sm:hidden">Red/Green Flag</span>
+              </h1>
+              <span className="text-2xl sm:text-3xl">✅</span>
             </div>
-            <div className="flex items-center space-x-4">
+
+            {/* Right Side Actions */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Streak Badge */}
               {votingStreak > 0 && (
-                <div className="px-3 py-1 bg-orange-600 rounded-lg text-sm font-semibold">
-                  🔥 {votingStreak} day streak!
+                <div className="px-2 py-1 sm:px-3 bg-orange-600 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap">
+                  🔥 <span className="hidden xs:inline">{votingStreak} day</span>
+                  <span className="xs:hidden">{votingStreak}d</span>
                 </div>
               )}
+
+              {/* Sound Toggle */}
               <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
-                className="p-2 hover:bg-gray-700 rounded-lg transition"
+                className="p-2 hover:bg-gray-700 rounded-lg transition touch-manipulation"
                 title={soundEnabled ? 'Mute sounds' : 'Enable sounds'}
               >
-                {soundEnabled ? '🔊' : '🔇'}
+                <span className="text-lg sm:text-xl">{soundEnabled ? '🔊' : '🔇'}</span>
               </button>
-              {!isPremium && (
-                <>
+
+              {/* Premium Button / Badge */}
+              {!isPremium ? (
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setIsPremium(true)}
-                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-semibold hover:opacity-90 transition"
+                    className="px-2 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-xs sm:text-sm font-semibold hover:opacity-90 transition touch-manipulation whitespace-nowrap"
                   >
-                    ⭐ Upgrade to Premium
+                    <span className="hidden sm:inline">⭐ Upgrade to Premium</span>
+                    <span className="sm:hidden">⭐ Premium</span>
                   </button>
-                  <span className="text-sm text-gray-400">
-                    {5 - dailyVotes} votes left today
+                  <span className="hidden md:inline text-xs sm:text-sm text-gray-400 whitespace-nowrap">
+                    {5 - dailyVotes} left
                   </span>
-                </>
-              )}
-              {isPremium && (
-                <span className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-semibold">
+                </div>
+              ) : (
+                <span className="px-2 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap">
                   ⭐ Premium
                 </span>
               )}
             </div>
           </div>
+
+          {/* Mobile Votes Counter (below header on mobile) */}
+          {!isPremium && (
+            <div className="md:hidden mt-2 text-center">
+              <span className="text-xs text-gray-400">
+                {5 - dailyVotes} votes left today
+              </span>
+            </div>
+          )}
         </div>
       </header>
 
       {/* Navigation */}
-      <nav className="bg-card-dark border-b border-gray-700">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex space-x-8 overflow-x-auto">
+      <nav className="bg-card-dark border-b border-gray-700 overflow-x-auto">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4">
+          <div className="flex space-x-4 sm:space-x-6 md:space-x-8">
             <button
               onClick={() => setView('feed')}
-              className={`py-4 px-2 border-b-2 font-medium transition whitespace-nowrap ${
+              className={`py-3 sm:py-4 px-3 sm:px-4 border-b-2 text-sm sm:text-base font-medium transition whitespace-nowrap touch-manipulation ${
                 view === 'feed'
                   ? 'border-green-flag text-green-flag'
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              📱 Feed
+              <span className="hidden sm:inline">📱 Feed</span>
+              <span className="sm:hidden">📱</span>
             </button>
             <button
               onClick={() => setView('trending')}
-              className={`py-4 px-2 border-b-2 font-medium transition whitespace-nowrap ${
+              className={`py-3 sm:py-4 px-3 sm:px-4 border-b-2 text-sm sm:text-base font-medium transition whitespace-nowrap touch-manipulation ${
                 view === 'trending'
                   ? 'border-green-flag text-green-flag'
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              🔥 Trending
+              <span className="hidden sm:inline">🔥 Trending</span>
+              <span className="sm:hidden">🔥</span>
             </button>
             <button
               onClick={() => setView('top')}
-              className={`py-4 px-2 border-b-2 font-medium transition whitespace-nowrap ${
+              className={`py-3 sm:py-4 px-3 sm:px-4 border-b-2 text-sm sm:text-base font-medium transition whitespace-nowrap touch-manipulation ${
                 view === 'top'
                   ? 'border-green-flag text-green-flag'
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              🏆 Top Voted
+              <span className="hidden sm:inline">🏆 Top</span>
+              <span className="sm:hidden">🏆</span>
             </button>
             <button
               onClick={() => setView('favorites')}
-              className={`py-4 px-2 border-b-2 font-medium transition whitespace-nowrap ${
+              className={`py-3 sm:py-4 px-3 sm:px-4 border-b-2 text-sm sm:text-base font-medium transition whitespace-nowrap touch-manipulation ${
                 view === 'favorites'
                   ? 'border-green-flag text-green-flag'
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              ⭐ Favorites ({favorites.size})
+              <span className="hidden sm:inline">⭐ Favorites ({favorites.size})</span>
+              <span className="sm:hidden">⭐ {favorites.size}</span>
             </button>
             <button
               onClick={() => setView('submit')}
-              className={`py-4 px-2 border-b-2 font-medium transition whitespace-nowrap ${
+              className={`py-3 sm:py-4 px-3 sm:px-4 border-b-2 text-sm sm:text-base font-medium transition whitespace-nowrap touch-manipulation ${
                 view === 'submit'
                   ? 'border-green-flag text-green-flag'
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              ✍️ Submit
+              <span className="hidden sm:inline">✍️ Submit</span>
+              <span className="sm:hidden">✍️</span>
             </button>
             <button
               onClick={() => setView('mysubmissions')}
-              className={`py-4 px-2 border-b-2 font-medium transition whitespace-nowrap ${
+              className={`py-3 sm:py-4 px-3 sm:px-4 border-b-2 text-sm sm:text-base font-medium transition whitespace-nowrap touch-manipulation ${
                 view === 'mysubmissions'
                   ? 'border-green-flag text-green-flag'
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              📊 My Submissions
+              <span className="hidden sm:inline">📊 My Submissions</span>
+              <span className="sm:hidden">📊</span>
             </button>
           </div>
         </div>
@@ -585,9 +612,9 @@ export default function Home() {
 
       {/* Category Filter */}
       {(view === 'feed') && (
-        <div className="bg-card-dark border-b border-gray-700">
-          <div className="max-w-6xl mx-auto px-4 py-3">
-            <div className="flex space-x-2 overflow-x-auto">
+        <div className="bg-card-dark border-b border-gray-700 overflow-x-auto">
+          <div className="max-w-6xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
+            <div className="flex gap-2 overflow-x-auto pb-1">
               {categories.map((cat) => (
                 <button
                   key={cat}
@@ -595,7 +622,7 @@ export default function Home() {
                     setSelectedCategory(cat);
                     setCurrentIndex(0);
                   }}
-                  className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition whitespace-nowrap touch-manipulation ${
                     selectedCategory === cat
                       ? 'bg-green-flag text-white'
                       : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -610,7 +637,7 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-4 py-8">
+      <main className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         {/* Feed View */}
         {view === 'feed' && (
           <div>
@@ -628,68 +655,72 @@ export default function Home() {
             </div>
 
             {!showResults && currentSubmission && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <div
                   ref={cardRef}
-                  className={`bg-card-dark rounded-2xl p-8 shadow-2xl transition-transform ${cardAnimation}`}
+                  className={`bg-card-dark rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl transition-transform ${cardAnimation}`}
                 >
                   <div className="flex justify-between items-start mb-4">
-                    <span className="inline-block px-3 py-1 bg-gray-700 rounded-full text-sm text-gray-300">
+                    <span className="inline-block px-2 sm:px-3 py-1 bg-gray-700 rounded-full text-xs sm:text-sm text-gray-300">
                       {currentSubmission.category}
                     </span>
                     <button
                       onClick={() => toggleFavorite(currentSubmission.id)}
-                      className="text-2xl hover:scale-110 transition-transform"
+                      className="text-xl sm:text-2xl hover:scale-110 transition-transform touch-manipulation"
                     >
                       {favorites.has(currentSubmission.id) ? '⭐' : '☆'}
                     </button>
                   </div>
-                  <p className="text-2xl leading-relaxed mb-8">
+                  <p className="text-lg sm:text-xl md:text-2xl leading-relaxed mb-6 sm:mb-8 min-h-[80px] sm:min-h-[100px]">
                     {currentSubmission.text}
                   </p>
-                  <div className="flex justify-between items-center space-x-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
                     <button
                       onClick={() => handleVote('red')}
-                      className="flex-1 bg-red-flag hover:bg-red-600 text-white py-4 px-6 rounded-xl font-bold text-lg transition transform hover:scale-105 flex items-center justify-center space-x-2"
+                      className="w-full sm:flex-1 bg-red-flag hover:bg-red-600 active:bg-red-700 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold text-base sm:text-lg transition transform active:scale-95 sm:hover:scale-105 flex items-center justify-center gap-2 touch-manipulation"
                     >
-                      <span className="text-2xl">🚩</span>
+                      <span className="text-xl sm:text-2xl">🚩</span>
                       <span>RED FLAG</span>
                     </button>
 
                     <button
                       onClick={() => handleVote('green')}
-                      className="flex-1 bg-green-flag hover:bg-green-600 text-white py-4 px-6 rounded-xl font-bold text-lg transition transform hover:scale-105 flex items-center justify-center space-x-2"
+                      className="w-full sm:flex-1 bg-green-flag hover:bg-green-600 active:bg-green-700 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold text-base sm:text-lg transition transform active:scale-95 sm:hover:scale-105 flex items-center justify-center gap-2 touch-manipulation"
                     >
-                      <span className="text-2xl">✅</span>
+                      <span className="text-xl sm:text-2xl">✅</span>
                       <span>GREEN FLAG</span>
                     </button>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex justify-center space-x-4 mt-6">
+                  <div className="flex justify-center gap-2 sm:gap-4 mt-4 sm:mt-6">
                     <button
                       onClick={handleUndo}
                       disabled={voteHistory.length === 0}
-                      className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 sm:px-4 py-2 bg-gray-700 hover:bg-gray-600 active:bg-gray-500 rounded-lg text-sm sm:text-base font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                     >
-                      ↩️ Undo
+                      <span className="hidden xs:inline">↩️ Undo</span>
+                      <span className="xs:hidden">↩️</span>
                     </button>
                     <button
                       onClick={handleSkip}
-                      className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition"
+                      className="px-3 sm:px-4 py-2 bg-gray-700 hover:bg-gray-600 active:bg-gray-500 rounded-lg text-sm sm:text-base font-semibold transition touch-manipulation"
                     >
-                      ⏭️ Skip
+                      <span className="hidden xs:inline">⏭️ Skip</span>
+                      <span className="xs:hidden">⏭️</span>
                     </button>
                     <button
                       onClick={() => handleShare(currentSubmission)}
-                      className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition"
+                      className="px-3 sm:px-4 py-2 bg-gray-700 hover:bg-gray-600 active:bg-gray-500 rounded-lg text-sm sm:text-base font-semibold transition touch-manipulation"
                     >
-                      📤 Share
+                      <span className="hidden xs:inline">📤 Share</span>
+                      <span className="xs:hidden">📤</span>
                     </button>
                   </div>
 
-                  <div className="mt-4 text-center text-sm text-gray-500">
-                    💡 Swipe left for 🚩 • Swipe right for ✅ • Arrow keys work too!
+                  <div className="mt-3 sm:mt-4 text-center text-xs sm:text-sm text-gray-500">
+                    <span className="hidden sm:inline">💡 Swipe left for 🚩 • Swipe right for ✅ • Arrow keys work too!</span>
+                    <span className="sm:hidden">💡 Swipe or tap to vote</span>
                   </div>
                 </div>
               </div>
