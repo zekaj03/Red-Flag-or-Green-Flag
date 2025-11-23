@@ -1,0 +1,844 @@
+{%- comment -%}
+================================================================================
+IKAUFEN.CH - CONVERSION RATE OPTIMIERUNGEN
+================================================================================
+Diese Snippets erhöhen die Conversion Rate (mehr Besucher → Käufer)
+
+ZIEL: +30-50% mehr Verkäufe ohne mehr Traffic
+================================================================================
+{%- endcomment -%}
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+1. TRUST BADGES & SICHERHEITSSIGNALE (Produktseite)
+--------------------------------------------------------------------------------
+Füge dies auf der Produktseite unter dem "In den Warenkorb" Button ein
+{%- endcomment -%}
+
+<div class="trust-badges">
+  <div class="trust-row">
+    <div class="trust-item">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span>Sichere Zahlung</span>
+    </div>
+
+    <div class="trust-item">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M21 10H3M21 6H3M21 14H3M21 18H3" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span>Kostenloser Versand ab 50 CHF</span>
+    </div>
+
+    <div class="trust-item">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M3 10h18M3 14h18" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span>30 Tage Rückgaberecht</span>
+    </div>
+
+    <div class="trust-item">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span>Schneller Versand (1-3 Tage)</span>
+    </div>
+  </div>
+
+  {%- comment -%} Zahlungs-Icons {%- endcomment -%}
+  <div class="payment-icons">
+    <span class="payment-label">Sichere Zahlung mit:</span>
+    <img src="https://cdn.shopify.com/shopifycloud/checkout-web/assets/0169695890db3db16bfe.svg" alt="Visa" height="24">
+    <img src="https://cdn.shopify.com/shopifycloud/checkout-web/assets/37fc65d0ec97663c0b8d.svg" alt="Mastercard" height="24">
+    <img src="https://cdn.shopify.com/shopifycloud/checkout-web/assets/142b5630c4894ed2725a.svg" alt="PayPal" height="24">
+    <img src="https://cdn.shopify.com/shopifycloud/checkout-web/assets/7b7ac857f0be682dca5f.svg" alt="Apple Pay" height="24">
+    <img src="https://cdn.shopify.com/shopifycloud/checkout-web/assets/f11b90c2972f4985641a.svg" alt="Twint" height="24">
+  </div>
+</div>
+
+<style>
+.trust-badges {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.trust-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.trust-item svg {
+  flex-shrink: 0;
+  color: #22c55e;
+}
+
+.payment-icons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 15px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.payment-label {
+  font-size: 13px;
+  color: #666;
+  margin-right: 5px;
+}
+
+.payment-icons img {
+  height: 24px;
+  width: auto;
+}
+
+@media (max-width: 640px) {
+  .trust-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .trust-item {
+    font-size: 13px;
+  }
+}
+</style>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+2. DRINGLICHKEIT & KNAPPHEIT (Urgency/Scarcity)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%} Stock Counter auf Produktseite {%- endcomment -%}
+{%- if product.selected_or_first_available_variant.inventory_quantity <= 10 and product.selected_or_first_available_variant.inventory_quantity > 0 -%}
+  <div class="low-stock-warning">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#f59e0b" stroke-width="2"/>
+    </svg>
+    <span>
+      🔥 Nur noch <strong>{{ product.selected_or_first_available_variant.inventory_quantity }}</strong> auf Lager!
+    </span>
+  </div>
+{%- endif -%}
+
+<style>
+.low-stock-warning {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  border-radius: 4px;
+  margin: 15px 0;
+  font-size: 14px;
+  color: #92400e;
+}
+
+.low-stock-warning strong {
+  color: #d97706;
+}
+</style>
+
+
+{%- comment -%} Countdown Timer für zeitlich begrenzte Angebote {%- endcomment -%}
+{%- if product.tags contains 'sale' -%}
+  <div class="countdown-timer" data-end-date="2024-12-31T23:59:59">
+    <div class="countdown-label">⏰ Angebot endet in:</div>
+    <div class="countdown-numbers">
+      <div class="countdown-item">
+        <span class="countdown-value" id="days">0</span>
+        <span class="countdown-unit">Tage</span>
+      </div>
+      <div class="countdown-item">
+        <span class="countdown-value" id="hours">0</span>
+        <span class="countdown-unit">Std</span>
+      </div>
+      <div class="countdown-item">
+        <span class="countdown-value" id="minutes">0</span>
+        <span class="countdown-unit">Min</span>
+      </div>
+      <div class="countdown-item">
+        <span class="countdown-value" id="seconds">0</span>
+        <span class="countdown-unit">Sek</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    const timer = document.querySelector('.countdown-timer');
+    if (!timer) return;
+
+    const endDate = new Date(timer.dataset.endDate).getTime();
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = endDate - now;
+
+      if (distance < 0) {
+        timer.style.display = 'none';
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById('days').textContent = days;
+      document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+      document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+      document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  })();
+  </script>
+
+  <style>
+  .countdown-timer {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    text-align: center;
+  }
+
+  .countdown-label {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
+
+  .countdown-numbers {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .countdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+  }
+
+  .countdown-value {
+    font-size: 32px;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  .countdown-unit {
+    font-size: 12px;
+    margin-top: 5px;
+    opacity: 0.9;
+  }
+  </style>
+{%- endif -%}
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+3. SOCIAL PROOF (Bewertungen & "X Personen haben dies gekauft")
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%} Recent Sales Notification {%- endcomment -%}
+<div class="social-proof-popup" style="display: none;">
+  <div class="social-proof-content">
+    <img src="https://ui-avatars.com/api/?name=Kunde&background=random" alt="Kunde" class="social-proof-avatar">
+    <div class="social-proof-text">
+      <strong>Jemand aus Zürich</strong> hat gerade gekauft
+      <div class="social-proof-time">vor 3 Minuten</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Social Proof Popup (zeigt alle 30-60 Sekunden eine Benachrichtigung)
+(function() {
+  const cities = ['Zürich', 'Bern', 'Basel', 'Genf', 'Luzern', 'Lausanne', 'St. Gallen'];
+  const times = ['2 Minuten', '5 Minuten', '8 Minuten', '15 Minuten', '20 Minuten'];
+
+  function showSocialProof() {
+    const popup = document.querySelector('.social-proof-popup');
+    if (!popup) return;
+
+    const city = cities[Math.floor(Math.random() * cities.length)];
+    const time = times[Math.floor(Math.random() * times.length)];
+
+    popup.querySelector('strong').textContent = `Jemand aus ${city}`;
+    popup.querySelector('.social-proof-time').textContent = `vor ${time}`;
+
+    popup.style.display = 'block';
+
+    setTimeout(() => {
+      popup.style.display = 'none';
+    }, 5000);
+  }
+
+  // Zeige erstmals nach 10 Sekunden, dann alle 45 Sekunden
+  setTimeout(() => {
+    showSocialProof();
+    setInterval(showSocialProof, 45000);
+  }, 10000);
+})();
+</script>
+
+<style>
+.social-proof-popup {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  animation: slideInLeft 0.3s ease-out;
+  max-width: 300px;
+}
+
+.social-proof-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.social-proof-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.social-proof-text {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.social-proof-time {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .social-proof-popup {
+    left: 10px;
+    right: 10px;
+    max-width: none;
+  }
+}
+</style>
+
+
+{%- comment -%} Produkt-Bewertungen anzeigen {%- endcomment -%}
+{%- if product.metafields.reviews.rating.value -%}
+  <div class="product-rating">
+    <div class="stars">
+      {%- assign rating = product.metafields.reviews.rating.value | round -%}
+      {%- for i in (1..5) -%}
+        {%- if i <= rating -%}
+          <span class="star filled">★</span>
+        {%- else -%}
+          <span class="star">☆</span>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    <span class="rating-text">
+      {{ product.metafields.reviews.rating.value }} / 5
+      ({{ product.metafields.reviews.rating_count.value }} Bewertungen)
+    </span>
+  </div>
+
+  <style>
+  .product-rating {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+  }
+
+  .stars {
+    display: flex;
+    gap: 2px;
+  }
+
+  .star {
+    color: #d1d5db;
+    font-size: 20px;
+  }
+
+  .star.filled {
+    color: #fbbf24;
+  }
+
+  .rating-text {
+    font-size: 14px;
+    color: #666;
+  }
+  </style>
+{%- endif -%}
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+4. STICKY "IN DEN WARENKORB" BUTTON (Mobile)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+<div class="sticky-add-to-cart">
+  <div class="sticky-product-info">
+    <img src="{{ product.featured_image | img_url: '60x60' }}" alt="{{ product.title }}">
+    <div class="sticky-product-text">
+      <div class="sticky-product-title">{{ product.title | truncate: 30 }}</div>
+      <div class="sticky-product-price">{{ product.price | money }}</div>
+    </div>
+  </div>
+  <button type="submit" class="sticky-atc-button">
+    In den Warenkorb
+  </button>
+</div>
+
+<style>
+.sticky-add-to-cart {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 15px 20px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  z-index: 100;
+  align-items: center;
+  gap: 15px;
+}
+
+.sticky-product-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.sticky-product-info img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.sticky-product-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.sticky-product-price {
+  font-size: 16px;
+  font-weight: bold;
+  color: #000;
+  margin-top: 2px;
+}
+
+.sticky-atc-button {
+  background: #000;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Zeige nur auf Mobile wenn User nach unten scrollt */
+@media (max-width: 768px) {
+  .sticky-add-to-cart.show {
+    display: flex;
+  }
+}
+
+@media (min-width: 769px) {
+  .sticky-add-to-cart {
+    display: none !important;
+  }
+}
+</style>
+
+<script>
+// Sticky ATC anzeigen wenn User scrollt
+(function() {
+  const stickyBar = document.querySelector('.sticky-add-to-cart');
+  const mainAtcButton = document.querySelector('.product-form__submit');
+
+  if (!stickyBar || !mainAtcButton) return;
+
+  let lastScroll = 0;
+
+  window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+    const buttonRect = mainAtcButton.getBoundingClientRect();
+    const isButtonVisible = buttonRect.top >= 0 && buttonRect.bottom <= window.innerHeight;
+
+    if (currentScroll > 300 && !isButtonVisible) {
+      stickyBar.classList.add('show');
+    } else {
+      stickyBar.classList.remove('show');
+    }
+
+    lastScroll = currentScroll;
+  });
+
+  // Click Handler
+  stickyBar.querySelector('.sticky-atc-button').addEventListener('click', (e) => {
+    e.preventDefault();
+    mainAtcButton.click();
+  });
+})();
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+5. KOSTENLOSER VERSAND FORTSCHRITTSBALKEN (Warenkorb)
+--------------------------------------------------------------------------------
+Zeigt "Nur noch 20 CHF bis kostenloser Versand!"
+{%- endcomment -%}
+
+{%- assign free_shipping_threshold = 50 -%}
+{%- assign cart_total = cart.total_price | divided_by: 100.0 -%}
+{%- assign remaining = free_shipping_threshold | minus: cart_total -%}
+
+<div class="free-shipping-bar">
+  {%- if cart_total >= free_shipping_threshold -%}
+    <div class="shipping-message success">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span>🎉 Du hast kostenlosen Versand freigeschaltet!</span>
+    </div>
+  {%- else -%}
+    <div class="shipping-message">
+      <span>
+        Nur noch <strong>{{ remaining | money }}</strong> bis zum kostenlosen Versand!
+      </span>
+    </div>
+    <div class="shipping-progress">
+      <div class="shipping-progress-bar" style="width: {{ cart_total | divided_by: free_shipping_threshold | times: 100 }}%"></div>
+    </div>
+  {%- endif -%}
+</div>
+
+<style>
+.free-shipping-bar {
+  background: #f0f9ff;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.shipping-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #0369a1;
+  margin-bottom: 10px;
+}
+
+.shipping-message.success {
+  color: #15803d;
+  margin-bottom: 0;
+}
+
+.shipping-message svg {
+  flex-shrink: 0;
+}
+
+.shipping-message strong {
+  color: #0c4a6e;
+  font-weight: 700;
+}
+
+.shipping-progress {
+  width: 100%;
+  height: 8px;
+  background: #e0f2fe;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.shipping-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%);
+  transition: width 0.3s ease;
+  border-radius: 10px;
+}
+</style>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+6. UPSELL / CROSS-SELL (Häufig zusammen gekauft)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+<div class="frequently-bought-together">
+  <h3>🔥 Häufig zusammen gekauft</h3>
+
+  <div class="fbt-products">
+    <div class="fbt-item main-product">
+      <img src="{{ product.featured_image | img_url: '150x150' }}" alt="{{ product.title }}">
+      <div class="fbt-title">{{ product.title | truncate: 40 }}</div>
+      <div class="fbt-price">{{ product.price | money }}</div>
+    </div>
+
+    <div class="fbt-plus">+</div>
+
+    {%- comment -%} Related Product 1 - Anpassen an deine Produkte {%- endcomment -%}
+    {%- assign related_product = collections['accessories'].products.first -%}
+    {%- if related_product -%}
+      <div class="fbt-item">
+        <img src="{{ related_product.featured_image | img_url: '150x150' }}" alt="{{ related_product.title }}">
+        <div class="fbt-title">{{ related_product.title | truncate: 40 }}</div>
+        <div class="fbt-price">{{ related_product.price | money }}</div>
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="fbt-summary">
+    <div class="fbt-total">
+      Gesamt: <strong>{{ product.price | plus: related_product.price | money }}</strong>
+      <span class="fbt-savings">Spare 10%!</span>
+    </div>
+    <button class="fbt-button">Beide in den Warenkorb</button>
+  </div>
+</div>
+
+<style>
+.frequently-bought-together {
+  border: 2px solid #f3f4f6;
+  border-radius: 12px;
+  padding: 25px;
+  margin: 30px 0;
+}
+
+.frequently-bought-together h3 {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.fbt-products {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.fbt-item {
+  text-align: center;
+  flex: 1;
+  min-width: 120px;
+  max-width: 150px;
+}
+
+.fbt-item img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.fbt-title {
+  font-size: 13px;
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+
+.fbt-price {
+  font-weight: 600;
+  color: #000;
+}
+
+.fbt-plus {
+  font-size: 24px;
+  font-weight: bold;
+  color: #9ca3af;
+}
+
+.fbt-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.fbt-total {
+  font-size: 16px;
+}
+
+.fbt-total strong {
+  font-size: 20px;
+  margin-left: 5px;
+}
+
+.fbt-savings {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+.fbt-button {
+  background: #000;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.fbt-button:hover {
+  opacity: 0.85;
+}
+</style>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+7. CHECKOUT OPTIMIERUNGEN
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%}
+Shopify Plus Kunden können checkout.liquid bearbeiten:
+
+1. Shopify Admin → Settings → Checkout → Customize checkout
+2. Füge diese Elemente hinzu:
+   - Express Checkout Buttons (Apple Pay, Google Pay, Shop Pay) ganz oben
+   - Trust Badges neben Zahlungsfeldern
+   - Minimize form fields (Email, Vorname, Nachname, Adresse, PLZ, Stadt, Land)
+   - Auto-fill aktivieren
+   - Mobile-optimiert (große Touch-Targets)
+
+3. Kostenlose Alternativen:
+   - Shopify Standard: Express Checkout aktivieren
+   - One-Page Checkout verwenden (Standard seit 2023)
+{%- endcomment -%}
+
+
+{%- comment -%}
+================================================================================
+CONVERSION RATE OPTIMIERUNG CHECKLIST
+================================================================================
+
+□ TRUST ELEMENTE:
+  ✅ Trust Badges implementieren (Code oben)
+  ✅ Zahlungsicons anzeigen
+  ✅ SSL Zertifikat aktiv (https://)
+  ✅ Versand-Info prominent anzeigen
+  ✅ Rückgaberecht deutlich kommunizieren
+  ✅ Kontaktinformationen leicht findbar
+
+□ URGENCY & SCARCITY:
+  ✅ Lagerbestand anzeigen bei wenigen Artikeln
+  ✅ Countdown Timer bei Sales
+  ✅ "Letzte 24h: X verkauft" anzeigen
+  ✅ Zeitlich begrenzte Angebote
+
+□ SOCIAL PROOF:
+  ✅ Produkt-Bewertungen (Judge.me, Loox, Yotpo)
+  ✅ "X Personen haben gekauft" Notifications
+  ✅ Testimonials auf Homepage
+  ✅ Instagram-Feed einbinden
+  ✅ Kundenzitate auf Produktseiten
+
+□ PRODUKTSEITE:
+  ✅ Hochwertige Produktbilder (min. 5 Bilder)
+  ✅ 360° Ansicht oder Videos
+  ✅ Detaillierte Beschreibung (Bullet Points!)
+  ✅ Größentabelle / Maße
+  ✅ FAQ Bereich
+  ✅ "In den Warenkorb" Button prominent
+  ✅ Sticky ATC Button auf Mobile
+
+□ WARENKORB:
+  ✅ Free Shipping Bar
+  ✅ Cross-Sell Produkte ("Das könnte dir auch gefallen")
+  ✅ Rabattcode-Feld
+  ✅ Weiter einkaufen Button
+  ✅ Kostenübersicht (Versand, MwSt, Total)
+
+□ CHECKOUT:
+  ✅ Express Checkout aktiviert (Shop Pay, Apple Pay, Google Pay)
+  ✅ Gastbestellung möglich
+  ✅ Auto-Fill aktiviert
+  ✅ Mobile optimiert
+  ✅ Trust Badges anzeigen
+  ✅ Fortschrittsanzeige (Schritt 1/3)
+
+□ AFTER-PURCHASE:
+  ✅ Abandoned Cart Emails (nach 1h, 24h, 72h)
+  ✅ Post-Purchase Upsells
+  ✅ Thank You Page optimieren
+  ✅ Review-Anfrage Email (nach 7 Tagen)
+
+================================================================================
+A/B TESTING IDEEN (mit Google Optimize oder Shopify Apps):
+================================================================================
+
+1. Button Farbe: Schwarz vs. Grün vs. Orange
+2. Button Text: "In den Warenkorb" vs. "Jetzt kaufen" vs. "Bestellen"
+3. Preisdarstellung: 49.99 CHF vs. CHF 49.99 vs. 49,99 CHF
+4. Produktbilder: Lifestyle vs. White Background
+5. Anzahl Produktbilder: 3 vs. 5 vs. 8+
+6. Review Position: Unter ATC vs. Über ATC
+7. Trust Badges: Mit vs. Ohne
+8. Kostenloser Versand: Als Banner vs. Bei Produktpreis
+9. Countdown Timer: Mit vs. Ohne
+10. Social Proof Popup: Mit vs. Ohne
+
+================================================================================
+{%- endcomment -%}

@@ -1,0 +1,714 @@
+{%- comment -%}
+================================================================================
+IKAUFEN.CH - ANALYTICS & TRACKING SETUP
+================================================================================
+Messe was funktioniert und optimiere datenbasiert
+
+WICHTIG: Datenschutz beachten! Privacy Policy & Cookie Banner sind Pflicht.
+================================================================================
+{%- endcomment -%}
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+1. GOOGLE ANALYTICS 4 (GA4) - Grundlegende Installation
+--------------------------------------------------------------------------------
+Füge dies im <head> von theme.liquid ein (vor </head>)
+{%- endcomment -%}
+
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // Basic Configuration
+  gtag('config', 'G-XXXXXXXXXX', {
+    'send_page_view': true,
+    'anonymize_ip': true  // GDPR Compliance
+  });
+
+  {%- comment -%} Enhanced E-Commerce Tracking {%- endcomment -%}
+  {%- if template.name == 'product' -%}
+    // Product View
+    gtag('event', 'view_item', {
+      currency: '{{ shop.currency }}',
+      value: {{ product.price | money_without_currency | remove: ',' }},
+      items: [{
+        item_id: '{{ product.id }}',
+        item_name: {{ product.title | json }},
+        item_brand: {{ product.vendor | json }},
+        item_category: {{ product.type | json }},
+        price: {{ product.price | money_without_currency | remove: ',' }},
+        quantity: 1
+      }]
+    });
+  {%- endif -%}
+
+  {%- if template.name == 'collection' -%}
+    // Collection View
+    gtag('event', 'view_item_list', {
+      item_list_name: {{ collection.title | json }},
+      items: [
+        {%- for product in collection.products limit: 10 -%}
+        {
+          item_id: '{{ product.id }}',
+          item_name: {{ product.title | json }},
+          price: {{ product.price | money_without_currency | remove: ',' }},
+          item_brand: {{ product.vendor | json }},
+          index: {{ forloop.index }}
+        }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]
+    });
+  {%- endif -%}
+</script>
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+2. GOOGLE TAG MANAGER (GTM) - Empfohlen statt direktes GA4
+--------------------------------------------------------------------------------
+GTM macht es einfacher alle Tags zu verwalten
+{%- endcomment -%}
+
+<!-- Google Tag Manager -->
+<script>
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-XXXXXXX');
+</script>
+<!-- End Google Tag Manager -->
+
+{%- comment -%} GTM Body Code - Füge dies direkt nach <body> ein {%- endcomment -%}
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+{%- comment -%}
+DataLayer Events für GTM
+{%- endcomment -%}
+<script>
+window.dataLayer = window.dataLayer || [];
+
+{%- if template.name == 'product' -%}
+  // Product Page View
+  dataLayer.push({
+    'event': 'productView',
+    'ecommerce': {
+      'detail': {
+        'products': [{
+          'id': '{{ product.id }}',
+          'name': {{ product.title | json }},
+          'price': '{{ product.price | money_without_currency | remove: "," }}',
+          'brand': {{ product.vendor | json }},
+          'category': {{ product.type | json }},
+          'variant': '{{ product.selected_or_first_available_variant.title }}'
+        }]
+      }
+    }
+  });
+{%- endif -%}
+
+{%- if template.name == 'cart' -%}
+  // Cart View
+  dataLayer.push({
+    'event': 'cartView',
+    'ecommerce': {
+      'currencyCode': '{{ shop.currency }}',
+      'cart': {
+        'products': [
+          {%- for item in cart.items -%}
+          {
+            'id': '{{ item.product_id }}',
+            'name': {{ item.product_title | json }},
+            'price': '{{ item.price | money_without_currency | remove: "," }}',
+            'quantity': {{ item.quantity }}
+          }{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+        ]
+      }
+    }
+  });
+{%- endif -%}
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+3. FACEBOOK PIXEL (Meta Pixel)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+
+fbq('init', 'YOUR_PIXEL_ID');
+fbq('track', 'PageView');
+
+{%- if template.name == 'product' -%}
+  // Product View Event
+  fbq('track', 'ViewContent', {
+    content_name: {{ product.title | json }},
+    content_ids: ['{{ product.id }}'],
+    content_type: 'product',
+    value: {{ product.price | money_without_currency | remove: ',' }},
+    currency: '{{ shop.currency }}'
+  });
+{%- endif -%}
+
+{%- if template.name == 'cart' -%}
+  // Add to Cart Event (Trigger via JavaScript)
+  fbq('track', 'AddToCart', {
+    content_ids: [
+      {%- for item in cart.items -%}
+        '{{ item.product_id }}'{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ],
+    content_type: 'product',
+    value: {{ cart.total_price | money_without_currency | remove: ',' }},
+    currency: '{{ shop.currency }}'
+  });
+{%- endif -%}
+
+{%- if first_time_accessed -%}
+  // Checkout Initiated
+  fbq('track', 'InitiateCheckout', {
+    content_ids: [
+      {%- for item in cart.items -%}
+        '{{ item.product_id }}'{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ],
+    num_items: {{ cart.item_count }},
+    value: {{ cart.total_price | money_without_currency | remove: ',' }},
+    currency: '{{ shop.currency }}'
+  });
+{%- endif -%}
+</script>
+
+<noscript>
+  <img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"/>
+</noscript>
+<!-- End Meta Pixel Code -->
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+4. ADD TO CART TRACKING (Universal)
+--------------------------------------------------------------------------------
+Trackt "In den Warenkorb" Klicks für GA4 & Facebook
+{%- endcomment -%}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Track Add to Cart clicks
+  const addToCartForms = document.querySelectorAll('form[action*="/cart/add"]');
+
+  addToCartForms.forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      const variantId = form.querySelector('[name="id"]')?.value;
+      const quantity = form.querySelector('[name="quantity"]')?.value || 1;
+
+      // Get product data from form or page
+      const productData = {
+        id: variantId,
+        name: '{{ product.title | escape }}',
+        price: '{{ product.price | money_without_currency | remove: "," }}',
+        quantity: quantity
+      };
+
+      // Google Analytics 4
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'add_to_cart', {
+          currency: '{{ shop.currency }}',
+          value: productData.price * quantity,
+          items: [{
+            item_id: productData.id,
+            item_name: productData.name,
+            price: productData.price,
+            quantity: quantity
+          }]
+        });
+      }
+
+      // Facebook Pixel
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'AddToCart', {
+          content_ids: [productData.id],
+          content_name: productData.name,
+          content_type: 'product',
+          value: productData.price * quantity,
+          currency: '{{ shop.currency }}'
+        });
+      }
+
+      // Google Tag Manager
+      if (typeof dataLayer !== 'undefined') {
+        dataLayer.push({
+          'event': 'addToCart',
+          'ecommerce': {
+            'currencyCode': '{{ shop.currency }}',
+            'add': {
+              'products': [{
+                'id': productData.id,
+                'name': productData.name,
+                'price': productData.price,
+                'quantity': quantity
+              }]
+            }
+          }
+        });
+      }
+    });
+  });
+});
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+5. PURCHASE TRACKING (Thank You Page)
+--------------------------------------------------------------------------------
+Nur auf der Thank You Page (nach erfolgreichem Kauf)
+Shopify Admin → Settings → Checkout → Order Status Page → Additional Scripts
+{%- endcomment -%}
+
+{% if first_time_accessed %}
+<script>
+// Google Analytics 4 Purchase Event
+if (typeof gtag !== 'undefined') {
+  gtag('event', 'purchase', {
+    transaction_id: '{{ order.order_number }}',
+    value: {{ total_price | money_without_currency | remove: ',' }},
+    tax: {{ tax_price | money_without_currency | remove: ',' }},
+    shipping: {{ shipping_price | money_without_currency | remove: ',' }},
+    currency: '{{ shop.currency }}',
+    items: [
+      {%- for line_item in line_items -%}
+      {
+        item_id: '{{ line_item.product_id }}',
+        item_name: {{ line_item.title | json }},
+        item_variant: {{ line_item.variant_title | json }},
+        price: {{ line_item.price | money_without_currency | remove: ',' }},
+        quantity: {{ line_item.quantity }}
+      }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  });
+}
+
+// Facebook Pixel Purchase Event
+if (typeof fbq !== 'undefined') {
+  fbq('track', 'Purchase', {
+    value: {{ total_price | money_without_currency | remove: ',' }},
+    currency: '{{ shop.currency }}',
+    content_ids: [
+      {%- for line_item in line_items -%}
+        '{{ line_item.product_id }}'{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ],
+    content_type: 'product',
+    num_items: {{ line_items.size }}
+  });
+}
+
+// Google Tag Manager Purchase Event
+if (typeof dataLayer !== 'undefined') {
+  dataLayer.push({
+    'event': 'purchase',
+    'ecommerce': {
+      'purchase': {
+        'actionField': {
+          'id': '{{ order.order_number }}',
+          'revenue': '{{ total_price | money_without_currency | remove: "," }}',
+          'tax': '{{ tax_price | money_without_currency | remove: "," }}',
+          'shipping': '{{ shipping_price | money_without_currency | remove: "," }}'
+        },
+        'products': [
+          {%- for line_item in line_items -%}
+          {
+            'id': '{{ line_item.product_id }}',
+            'name': {{ line_item.title | json }},
+            'price': '{{ line_item.price | money_without_currency | remove: "," }}',
+            'quantity': {{ line_item.quantity }}
+          }{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+        ]
+      }
+    }
+  });
+}
+</script>
+{% endif %}
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+6. HOTJAR / HEATMAPS (User Behavior Analysis)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+<!-- Hotjar Tracking Code -->
+<script>
+(function(h,o,t,j,a,r){
+    h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+    h._hjSettings={hjid:YOUR_HOTJAR_ID,hjsv:6};
+    a=o.getElementsByTagName('head')[0];
+    r=o.createElement('script');r.async=1;
+    r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+    a.appendChild(r);
+})(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+7. TIKTOK PIXEL (Falls TikTok Ads geplant)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+<!-- TikTok Pixel Code -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+
+  ttq.load('YOUR_TIKTOK_PIXEL_ID');
+  ttq.page();
+}(window, document, 'ttq');
+
+{%- if template.name == 'product' -%}
+  ttq.track('ViewContent', {
+    content_id: '{{ product.id }}',
+    content_name: {{ product.title | json }},
+    value: {{ product.price | money_without_currency | remove: ',' }},
+    currency: '{{ shop.currency }}'
+  });
+{%- endif -%}
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+8. PINTEREST TAG (Falls Pinterest Ads)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+<!-- Pinterest Tag -->
+<script>
+!function(e){if(!window.pintrk){window.pintrk = function () {
+window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var
+  n=window.pintrk;n.queue=[],n.version="3.0";var
+  t=document.createElement("script");t.async=!0,t.src=e;var
+  r=document.getElementsByTagName("script")[0];
+  r.parentNode.insertBefore(t,r)}}("https://s.pinimg.com/ct/core.js");
+
+pintrk('load', 'YOUR_PINTEREST_TAG_ID');
+pintrk('page');
+
+{%- if template.name == 'product' -%}
+  pintrk('track', 'pagevisit', {
+    line_items: [{
+      product_name: {{ product.title | json }},
+      product_id: '{{ product.id }}',
+      product_price: {{ product.price | money_without_currency | remove: ',' }},
+      product_quantity: 1
+    }]
+  });
+{%- endif -%}
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+9. COOKIE CONSENT BANNER (GDPR/DSGVO Compliance!)
+--------------------------------------------------------------------------------
+Schweiz: DSGVO gilt auch! Cookie Banner ist Pflicht.
+{%- endcomment -%}
+
+<div class="cookie-banner" id="cookieBanner">
+  <div class="cookie-content">
+    <p>
+      🍪 Wir verwenden Cookies um dein Shopping-Erlebnis zu verbessern und unsere Website zu analysieren.
+      <a href="/pages/datenschutz" target="_blank">Mehr erfahren</a>
+    </p>
+    <div class="cookie-buttons">
+      <button class="cookie-btn cookie-accept" onclick="acceptCookies()">
+        Alle akzeptieren
+      </button>
+      <button class="cookie-btn cookie-necessary" onclick="acceptNecessaryCookies()">
+        Nur notwendige
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.95);
+  color: white;
+  padding: 20px;
+  z-index: 10001;
+  display: none;
+  backdrop-filter: blur(10px);
+}
+
+.cookie-banner.show {
+  display: block;
+  animation: slideUp 0.3s ease;
+}
+
+.cookie-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.cookie-content p {
+  flex: 1;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.cookie-content a {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+.cookie-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.cookie-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.cookie-btn:hover {
+  opacity: 0.85;
+}
+
+.cookie-accept {
+  background: #22c55e;
+  color: white;
+}
+
+.cookie-necessary {
+  background: #6b7280;
+  color: white;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .cookie-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .cookie-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .cookie-btn {
+    width: 100%;
+  }
+}
+</style>
+
+<script>
+// Cookie Consent Management
+(function() {
+  const banner = document.getElementById('cookieBanner');
+
+  // Check if user already made a choice
+  if (!localStorage.getItem('cookieConsent')) {
+    setTimeout(() => {
+      banner.classList.add('show');
+    }, 2000);
+  } else if (localStorage.getItem('cookieConsent') === 'all') {
+    // Load tracking scripts
+    loadAnalytics();
+  }
+
+  window.acceptCookies = function() {
+    localStorage.setItem('cookieConsent', 'all');
+    banner.classList.remove('show');
+    loadAnalytics();
+  };
+
+  window.acceptNecessaryCookies = function() {
+    localStorage.setItem('cookieConsent', 'necessary');
+    banner.classList.remove('show');
+  };
+
+  function loadAnalytics() {
+    // Hier würden normalerweise die Analytics Scripts geladen
+    // In diesem Setup sind sie bereits geladen, daher nur Info
+    console.log('Analytics activated');
+  }
+})();
+</script>
+
+
+{%- comment -%}
+================================================================================
+ANALYTICS SETUP CHECKLIST
+================================================================================
+
+□ GOOGLE ANALYTICS 4:
+  ✅ Property erstellen (analytics.google.com)
+  ✅ Tracking Code einbauen
+  ✅ Enhanced E-Commerce aktivieren
+  ✅ Conversion Goals setzen:
+      - Purchase (Auto-tracked)
+      - Add to Cart
+      - Begin Checkout
+      - Newsletter Signup
+  ✅ Mit Google Search Console verbinden
+
+□ GOOGLE TAG MANAGER:
+  ✅ Container erstellen (tagmanager.google.com)
+  ✅ GA4 Tag hinzufügen
+  ✅ Facebook Pixel Tag
+  ✅ Trigger konfigurieren (Pageview, Add to Cart, Purchase)
+  ✅ Preview Mode testen
+  ✅ Container veröffentlichen
+
+□ FACEBOOK PIXEL:
+  ✅ Pixel erstellen (business.facebook.com/events_manager)
+  ✅ Code installieren
+  ✅ Standard Events testen:
+      - PageView
+      - ViewContent
+      - AddToCart
+      - InitiateCheckout
+      - Purchase
+  ✅ Conversions API einrichten (empfohlen)
+
+□ GOOGLE SEARCH CONSOLE:
+  ✅ Property hinzufügen
+  ✅ Sitemap einreichen (ikaufen.ch/sitemap.xml)
+  ✅ Mobile Usability prüfen
+  ✅ Core Web Vitals überwachen
+  ✅ URL Inspection Tool nutzen
+
+□ HOTJAR (OPTIONAL):
+  ✅ Account erstellen (hotjar.com)
+  ✅ Tracking Code einbauen
+  ✅ Heatmaps aktivieren
+  ✅ Session Recordings
+  ✅ Feedback Polls
+
+□ PRIVACY & LEGAL:
+  ✅ Datenschutzerklärung erstellen/updaten
+  ✅ Cookie Banner implementieren
+  ✅ Impressum aktualisieren
+  ✅ AGB prüfen
+  ✅ Widerrufsbelehrung
+
+================================================================================
+CONVERSION TRACKING - WICHTIGSTE EVENTS:
+================================================================================
+
+1. PURCHASE (Kauf) - HÖCHSTE PRIORITÄT
+2. ADD_TO_CART (In Warenkorb)
+3. BEGIN_CHECKOUT (Checkout gestartet)
+4. VIEW_ITEM (Produktansicht)
+5. SEARCH (Suche verwendet)
+6. SIGN_UP (Newsletter / Account erstellt)
+7. VIEW_ITEM_LIST (Collection angesehen)
+
+================================================================================
+WICHTIGE METRIKEN ZU TRACKEN:
+================================================================================
+
+□ REVENUE METRICS:
+  - Total Revenue
+  - Average Order Value (AOV)
+  - Revenue per Visitor
+  - Lifetime Value (LTV)
+
+□ CONVERSION METRICS:
+  - Conversion Rate (Overall)
+  - Add to Cart Rate
+  - Checkout Abandonment Rate
+  - Purchase Completion Rate
+
+□ TRAFFIC METRICS:
+  - Sessions
+  - Users
+  - Pageviews
+  - Bounce Rate
+  - Session Duration
+
+□ PRODUCT METRICS:
+  - Top Selling Products
+  - Product Views
+  - Add to Cart Rate per Product
+  - Cart Abandonment per Product
+
+□ MARKETING METRICS:
+  - Traffic Sources (Organic, Paid, Direct, Social)
+  - ROAS (Return on Ad Spend)
+  - CPA (Cost per Acquisition)
+  - Customer Acquisition Cost (CAC)
+
+================================================================================
+TESTING TOOLS:
+================================================================================
+
+1. Google Tag Assistant (Chrome Extension)
+   - Überprüft GA4 & GTM Installation
+
+2. Facebook Pixel Helper (Chrome Extension)
+   - Überprüft Facebook Pixel Events
+
+3. Google Analytics Debugger
+   - chrome://extensions → Developer Mode → Load unpacked
+
+4. Shopify Analytics
+   - Shopify Admin → Analytics → Reports
+   - Nutze Built-in Reports!
+
+5. Manual Testing
+   - Teste jeden Event manuell
+   - Prüfe Real-Time Reports in GA4
+   - Test Purchase auf Staging/Dev Store
+
+================================================================================
+{%- endcomment -%}

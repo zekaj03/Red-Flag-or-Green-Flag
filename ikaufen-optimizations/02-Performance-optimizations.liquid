@@ -1,0 +1,419 @@
+{%- comment -%}
+================================================================================
+IKAUFEN.CH - PERFORMANCE OPTIMIERUNGEN
+================================================================================
+Diese Snippets verbessern die Ladegeschwindigkeit und Performance
+
+ZIEL: PageSpeed Score 90+ | Ladezeit unter 3 Sekunden
+================================================================================
+{%- endcomment -%}
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+1. LAZY LOADING für Bilder (Außerhalb des sichtbaren Bereichs)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%} Produkt-Bilder mit Lazy Loading {%- endcomment -%}
+<img
+  src="{{ product.featured_image | img_url: '1x1' }}"
+  data-src="{{ product.featured_image | img_url: '800x800' }}"
+  alt="{{ product.title }}"
+  loading="lazy"
+  class="lazyload"
+  width="800"
+  height="800"
+>
+
+{%- comment -%} Collection Produkte {%- endcomment -%}
+{%- for product in collection.products -%}
+  <div class="product-card">
+    <img
+      src="{{ product.featured_image | img_url: '1x1' }}"
+      data-src="{{ product.featured_image | img_url: '500x500' }}"
+      data-srcset="
+        {{ product.featured_image | img_url: '500x500' }} 500w,
+        {{ product.featured_image | img_url: '800x800' }} 800w,
+        {{ product.featured_image | img_url: '1200x1200' }} 1200w
+      "
+      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+      alt="{{ product.title }}"
+      loading="lazy"
+      class="lazyload"
+    >
+  </div>
+{%- endfor -%}
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+2. RESPONSIVE BILDER (Richtige Größe für jedes Gerät)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%} Picture Element für maximale Optimierung {%- endcomment -%}
+<picture>
+  <source
+    media="(max-width: 640px)"
+    srcset="{{ product.featured_image | img_url: '640x640' }}"
+  >
+  <source
+    media="(max-width: 1024px)"
+    srcset="{{ product.featured_image | img_url: '1024x1024' }}"
+  >
+  <img
+    src="{{ product.featured_image | img_url: '1200x1200' }}"
+    alt="{{ product.title }}"
+    loading="lazy"
+  >
+</picture>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+3. PRELOAD WICHTIGER RESSOURCEN
+--------------------------------------------------------------------------------
+Füge dies in theme.liquid im <head> ein (VOR allen anderen Scripts)
+{%- endcomment -%}
+
+{%- comment -%} Preload wichtige Fonts {%- endcomment -%}
+<link rel="preload" href="{{ 'fonts.css' | asset_url }}" as="style">
+<link rel="preload" href="{{ 'theme.css' | asset_url }}" as="style">
+
+{%- comment -%} Preload Hero Image auf Startseite {%- endcomment -%}
+{%- if template.name == 'index' -%}
+  <link rel="preload" as="image" href="{{ section.settings.hero_image | img_url: '1920x800' }}">
+{%- endif -%}
+
+{%- comment -%} DNS Prefetch für externe Ressourcen {%- endcomment -%}
+<link rel="dns-prefetch" href="//cdn.shopify.com">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="dns-prefetch" href="//connect.facebook.net">
+<link rel="preconnect" href="//cdn.shopify.com" crossorigin>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+4. CRITICAL CSS (Above-the-fold CSS inline laden)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%} In theme.liquid im <head> - VOR dem CSS-Link {%- endcomment -%}
+<style>
+  /* Critical CSS - Wird sofort geladen */
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .header {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  /* Mobile First */
+  @media (max-width: 768px) {
+    .product-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+  }
+</style>
+
+{%- comment -%} CSS async laden {%- endcomment -%}
+<link rel="preload" href="{{ 'theme.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="{{ 'theme.css' | asset_url }}"></noscript>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+5. JAVASCRIPT OPTIMIERUNG - Defer & Async
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%} In theme.liquid vor </body> {%- endcomment -%}
+
+{%- comment -%} Kritische Scripts sofort laden {%- endcomment -%}
+<script src="{{ 'theme.js' | asset_url }}" defer></script>
+
+{%- comment -%} Nicht-kritische Scripts async laden {%- endcomment -%}
+<script src="{{ 'product-recommendations.js' | asset_url }}" async></script>
+<script src="{{ 'instagram-feed.js' | asset_url }}" async></script>
+
+{%- comment -%} jQuery nur wenn nötig, sonst Vanilla JS verwenden {%- endcomment -%}
+{%- comment -%}
+TIPP: Prüfe ob dein Theme jQuery wirklich braucht!
+Moderne Themes sollten ohne jQuery auskommen = 30KB gespart!
+{%- endcomment -%}
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+6. REDUCE SHOPIFY APP BLOAT
+--------------------------------------------------------------------------------
+Liquid Code um zu sehen welche Apps Scripts laden:
+{%- endcomment -%}
+
+{%- comment -%} Debug: Zeige alle geladenen App-Scripts (nur für Testing!) {%- endcomment -%}
+<!--
+GELADENE APPS:
+{{ content_for_header }}
+-->
+
+{%- comment -%}
+ACTION NEEDED:
+1. Shopify Admin → Apps
+2. Lösche ALLE nicht genutzten Apps!
+3. Jede App = 20-100KB extra = langsamer Shop
+4. Behalte nur:
+   - Review Apps (Judge.me, Loox)
+   - Email Marketing (Klaviyo)
+   - Wichtige Tools
+{%- endcomment -%}
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+7. COLLECTION PAGE PERFORMANCE
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%} Pagination statt Infinite Scroll (schneller!) {%- endcomment -%}
+{%- paginate collection.products by 24 -%}
+  <div class="product-grid">
+    {%- for product in collection.products -%}
+      <div class="product-card">
+        {%- comment -%} Nur Featured Image laden, nicht alle {%- endcomment -%}
+        <a href="{{ product.url }}">
+          <img
+            src="{{ product.featured_image | img_url: '400x400' }}"
+            alt="{{ product.title }}"
+            loading="lazy"
+            width="400"
+            height="400"
+          >
+          <h3>{{ product.title }}</h3>
+          <p class="price">{{ product.price | money }}</p>
+        </a>
+      </div>
+    {%- endfor -%}
+  </div>
+
+  {%- comment -%} Pagination Links {%- endcomment -%}
+  {%- if paginate.pages > 1 -%}
+    <div class="pagination">
+      {%- if paginate.previous -%}
+        <a href="{{ paginate.previous.url }}">← Zurück</a>
+      {%- endif -%}
+
+      {%- for part in paginate.parts -%}
+        {%- if part.is_link -%}
+          <a href="{{ part.url }}">{{ part.title }}</a>
+        {%- else -%}
+          <span class="current">{{ part.title }}</span>
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if paginate.next -%}
+        <a href="{{ paginate.next.url }}">Weiter →</a>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+{%- endpaginate -%}
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+8. REMOVE UNUSED CSS
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+<style>
+/* Minimiertes CSS - Nur was wirklich gebraucht wird */
+
+/* Reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Container */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: opacity 0.2s;
+}
+.btn:hover { opacity: 0.8; }
+
+/* Product Card */
+.product-card {
+  text-align: center;
+  transition: transform 0.2s;
+}
+.product-card:hover { transform: translateY(-4px); }
+.product-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Mobile optimiert */
+@media (max-width: 768px) {
+  .container { padding: 0 15px; }
+  .btn { padding: 10px 20px; font-size: 14px; }
+}
+</style>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+9. CACHING HEADERS (In theme.liquid)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%}
+HINWEIS: Shopify setzt bereits Cache-Headers.
+Für zusätzliches Caching verwende eine CDN wie Cloudflare (kostenlos!)
+{%- endcomment -%}
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+10. WEBP BILDER (Moderne Bildformate, 30% kleiner)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%} Shopify unterstützt automatisch WebP seit 2022! {%- endcomment -%}
+<img
+  srcset="
+    {{ product.featured_image | img_url: '400x400', format: 'pjpg' }} 400w,
+    {{ product.featured_image | img_url: '800x800', format: 'pjpg' }} 800w
+  "
+  sizes="(max-width: 640px) 100vw, 50vw"
+  src="{{ product.featured_image | img_url: '800x800' }}"
+  alt="{{ product.title }}"
+  loading="lazy"
+>
+
+
+{%- comment -%}
+================================================================================
+PERFORMANCE CHECKLIST - SHOPIFY ADMIN
+================================================================================
+
+□ APPS AUFRÄUMEN:
+  1. Shopify Admin → Apps
+  2. Lösche alle ungenutzten Apps
+  3. Ziel: Max 5-7 Apps
+
+□ BILDER KOMPRIMIEREN:
+  1. Verwende TinyPNG.com für alle Produktbilder
+  2. Max 200KB pro Bild
+  3. Format: JPG für Fotos, PNG für Grafiken/Logos
+  4. Größe: Max 2000x2000px
+
+□ THEME AUFRÄUMEN:
+  1. Online Store → Themes
+  2. Lösche alte/ungenutzte Themes (je weniger desto besser)
+  3. Verwende ein schnelles Theme (z.B. Dawn, Minimal)
+
+□ LIQUID CODE MINIMIEREN:
+  1. Entferne unnötige Kommentare
+  2. Kombiniere CSS/JS Dateien
+  3. Nutze Shopify's {{ 'file.js' | asset_url }} statt externe CDNs
+
+□ FONTS OPTIMIEREN:
+  1. Max 2 verschiedene Schriftarten
+  2. Nur benötigte Font-Weights laden (400 + 700 statt alle)
+  3. Verwende System-Fonts wenn möglich (ultra-schnell!)
+
+□ THIRD-PARTY SCRIPTS REDUZIEREN:
+  1. Facebook Pixel async laden
+  2. Google Analytics mit GTM (Google Tag Manager)
+  3. Chat-Widgets lazy loaden
+  4. Instagram Feed async laden
+
+□ CHECKOUT OPTIMIEREN:
+  Shopify Plus Kunden:
+  - Custom Checkout.liquid optimieren
+  - Unnötige Felder entfernen
+  - Express Checkout aktivieren (Shop Pay, Apple Pay, Google Pay)
+
+================================================================================
+PERFORMANCE TESTING TOOLS:
+================================================================================
+
+1. Google PageSpeed Insights
+   https://pagespeed.web.dev/
+   Ziel: 90+ Score Mobile & Desktop
+
+2. GTmetrix
+   https://gtmetrix.com/
+   Ziel: Grade A, LCP < 2.5s
+
+3. WebPageTest
+   https://www.webpagetest.org/
+   Teste aus Schweiz (Zürich Server)
+
+4. Shopify Theme Inspector
+   Chrome Extension für Shopify-spezifisches Debugging
+
+================================================================================
+QUICK WINS (Sofort 20-30% schneller):
+================================================================================
+
+1. ✅ Lösche ungenutzte Apps (jetzt!)
+2. ✅ Bilder komprimieren mit TinyPNG
+3. ✅ Lazy Loading aktivieren (Code oben)
+4. ✅ JavaScript defer/async (Code oben)
+5. ✅ Remove unused Shopify Sections
+   (Online Store → Themes → Customize → Remove)
+
+================================================================================
+{%- endcomment -%}
+
+{%- comment -%}
+LAZY LOAD LIBRARY (Falls Theme kein natives Lazy Load hat)
+Füge dies vor </body> in theme.liquid ein:
+{%- endcomment -%}
+
+<script>
+// Vanilla JS Lazy Loading (falls nötig)
+document.addEventListener("DOMContentLoaded", function() {
+  var lazyImages = [].slice.call(document.querySelectorAll("img.lazyload"));
+
+  if ("IntersectionObserver" in window) {
+    let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          let lazyImage = entry.target;
+          lazyImage.src = lazyImage.dataset.src;
+          if (lazyImage.dataset.srcset) {
+            lazyImage.srcset = lazyImage.dataset.srcset;
+          }
+          lazyImage.classList.remove("lazyload");
+          lazyImageObserver.unobserve(lazyImage);
+        }
+      });
+    });
+
+    lazyImages.forEach(function(lazyImage) {
+      lazyImageObserver.observe(lazyImage);
+    });
+  }
+});
+</script>

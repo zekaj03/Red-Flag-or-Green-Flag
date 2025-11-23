@@ -1,0 +1,940 @@
+{%- comment -%}
+================================================================================
+IKAUFEN.CH - MARKETING FEATURES
+================================================================================
+Diese Features helfen dir mehr Kunden zu gewinnen und zu binden
+
+ZIEL: Email-Liste aufbauen, Wiederholungskäufe erhöhen, Viralität steigern
+================================================================================
+{%- endcomment -%}
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+1. EXIT-INTENT POPUP (10% Rabatt für Email)
+--------------------------------------------------------------------------------
+Zeigt Popup wenn User die Seite verlassen will
+{%- endcomment -%}
+
+<div class="exit-intent-popup" id="exitPopup">
+  <div class="popup-overlay"></div>
+  <div class="popup-content">
+    <button class="popup-close" aria-label="Schließen">✕</button>
+
+    <div class="popup-body">
+      <div class="popup-emoji">🎁</div>
+      <h2 class="popup-title">Warte! Nicht so schnell...</h2>
+      <p class="popup-text">
+        Hol dir <strong>10% Rabatt</strong> auf deine erste Bestellung!
+      </p>
+
+      <form class="popup-form" id="exitPopupForm">
+        <input
+          type="email"
+          name="email"
+          placeholder="Deine E-Mail Adresse"
+          required
+          class="popup-input"
+        >
+        <button type="submit" class="popup-button">
+          Rabattcode erhalten
+        </button>
+      </form>
+
+      <p class="popup-disclaimer">
+        ✓ Kostenlose Lieferung ab 50 CHF<br>
+        ✓ 30 Tage Rückgaberecht<br>
+        ✓ Exklusive Angebote nur für Abonnenten
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+.exit-intent-popup {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+.exit-intent-popup.show {
+  display: block;
+}
+
+.popup-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+}
+
+.popup-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 16px;
+  padding: 40px 30px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: slideUp 0.4s ease;
+}
+
+.popup-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #f3f4f6;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.popup-close:hover {
+  background: #e5e7eb;
+}
+
+.popup-body {
+  text-align: center;
+}
+
+.popup-emoji {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.popup-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #000;
+}
+
+.popup-text {
+  font-size: 18px;
+  color: #4b5563;
+  margin-bottom: 24px;
+}
+
+.popup-text strong {
+  color: #ef4444;
+  font-size: 22px;
+}
+
+.popup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.popup-input {
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+.popup-input:focus {
+  outline: none;
+  border-color: #000;
+}
+
+.popup-button {
+  padding: 16px;
+  background: linear-gradient(135deg, #000 0%, #333 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.popup-button:hover {
+  transform: translateY(-2px);
+}
+
+.popup-disclaimer {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.6;
+  text-align: left;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@media (max-width: 640px) {
+  .popup-content {
+    padding: 32px 24px;
+  }
+
+  .popup-title {
+    font-size: 24px;
+  }
+
+  .popup-text {
+    font-size: 16px;
+  }
+}
+</style>
+
+<script>
+// Exit Intent Detection
+(function() {
+  const popup = document.getElementById('exitPopup');
+  const closeBtn = popup.querySelector('.popup-close');
+  const overlay = popup.querySelector('.popup-overlay');
+  const form = document.getElementById('exitPopupForm');
+
+  let popupShown = false;
+
+  // Check if user already saw popup (Cookie/LocalStorage)
+  if (localStorage.getItem('exitPopupShown')) {
+    return;
+  }
+
+  // Desktop: Mouse verlässt Viewport nach oben
+  document.addEventListener('mouseout', (e) => {
+    if (e.clientY < 0 && !popupShown && window.innerWidth > 768) {
+      showPopup();
+    }
+  });
+
+  // Mobile: Nach 30 Sekunden oder bei Scroll-Up
+  let scrollPos = 0;
+  let timeout = setTimeout(() => {
+    if (!popupShown && window.innerWidth <= 768) {
+      showPopup();
+    }
+  }, 30000);
+
+  window.addEventListener('scroll', () => {
+    if (window.innerWidth <= 768) {
+      const currentScroll = window.pageYOffset;
+      if (currentScroll < scrollPos && currentScroll > 500 && !popupShown) {
+        showPopup();
+      }
+      scrollPos = currentScroll;
+    }
+  });
+
+  function showPopup() {
+    if (popupShown) return;
+    popup.classList.add('show');
+    popupShown = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hidePopup() {
+    popup.classList.remove('show');
+    document.body.style.overflow = '';
+    localStorage.setItem('exitPopupShown', 'true');
+  }
+
+  closeBtn.addEventListener('click', hidePopup);
+  overlay.addEventListener('click', hidePopup);
+
+  // Form Submit (Integration mit Klaviyo/Mailchimp)
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = form.querySelector('input[type="email"]').value;
+
+    // Hier Klaviyo/Mailchimp API Integration
+    console.log('Email submitted:', email);
+
+    // Success Message
+    popup.querySelector('.popup-body').innerHTML = `
+      <div class="popup-emoji">✅</div>
+      <h2 class="popup-title">Perfekt!</h2>
+      <p class="popup-text">
+        Dein Rabattcode: <strong>WELCOME10</strong><br>
+        Check deine E-Mails für Details!
+      </p>
+      <button class="popup-button" onclick="document.getElementById('exitPopup').classList.remove('show')">
+        Weiter shoppen
+      </button>
+    `;
+
+    setTimeout(hidePopup, 5000);
+  });
+})();
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+2. NEWSLETTER POPUP (Bottom Slide-In)
+--------------------------------------------------------------------------------
+Weniger aggressiv als Exit-Intent, zeigt sich nach 15 Sekunden
+{%- endcomment -%}
+
+<div class="newsletter-slide-in" id="newsletterPopup">
+  <button class="newsletter-close">✕</button>
+  <div class="newsletter-content">
+    <div class="newsletter-icon">📬</div>
+    <div class="newsletter-text">
+      <strong>10% Rabatt sichern!</strong>
+      <p>Melde dich für unseren Newsletter an</p>
+    </div>
+    <form class="newsletter-form">
+      <input type="email" placeholder="E-Mail" required>
+      <button type="submit">→</button>
+    </form>
+  </div>
+</div>
+
+<style>
+.newsletter-slide-in {
+  position: fixed;
+  bottom: -200px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  padding: 20px;
+  max-width: 380px;
+  z-index: 9999;
+  transition: bottom 0.4s ease;
+}
+
+.newsletter-slide-in.show {
+  bottom: 20px;
+}
+
+.newsletter-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.newsletter-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.newsletter-icon {
+  font-size: 40px;
+  flex-shrink: 0;
+}
+
+.newsletter-text {
+  flex: 1;
+}
+
+.newsletter-text strong {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.newsletter-text p {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.newsletter-form input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.newsletter-form button {
+  background: #000;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+@media (max-width: 640px) {
+  .newsletter-slide-in {
+    left: 10px;
+    right: 10px;
+    max-width: none;
+  }
+
+  .newsletter-content {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+</style>
+
+<script>
+// Newsletter Slide-In
+(function() {
+  const popup = document.getElementById('newsletterPopup');
+  const closeBtn = popup.querySelector('.newsletter-close');
+
+  if (localStorage.getItem('newsletterClosed')) return;
+
+  setTimeout(() => {
+    popup.classList.add('show');
+  }, 15000);
+
+  closeBtn.addEventListener('click', () => {
+    popup.classList.remove('show');
+    localStorage.setItem('newsletterClosed', 'true');
+  });
+
+  popup.querySelector('.newsletter-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = popup.querySelector('input[type="email"]').value;
+    console.log('Newsletter email:', email);
+
+    popup.innerHTML = '<div style="text-align:center; padding: 20px;">✅ Danke! Check deine E-Mails.</div>';
+    setTimeout(() => popup.classList.remove('show'), 3000);
+  });
+})();
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+3. WHATSAPP KONTAKT BUTTON (Floating)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+<a
+  href="https://wa.me/41791234567?text=Hallo,%20ich%20habe%20eine%20Frage%20zu%20einem%20Produkt"
+  class="whatsapp-float"
+  target="_blank"
+  rel="noopener"
+  aria-label="WhatsApp Kontakt"
+>
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="white">
+    <path d="M16 0C7.164 0 0 7.164 0 16c0 2.828.738 5.482 2.034 7.792L0 32l8.448-2.016A15.914 15.914 0 0016 32c8.836 0 16-7.164 16-16S24.836 0 16 0zm0 29.334c-2.472 0-4.852-.68-6.888-1.968l-.492-.296-5.124 1.224 1.296-4.752-.324-.516A13.248 13.248 0 012.666 16C2.666 8.636 8.636 2.666 16 2.666S29.334 8.636 29.334 16 23.364 29.334 16 29.334z"/>
+    <path d="M23.68 19.584c-.376-.188-2.22-1.096-2.564-1.22-.344-.124-.596-.188-.848.188-.252.376-.972 1.22-1.192 1.472-.22.252-.44.284-.816.096-.376-.188-1.588-.584-3.024-1.864-1.116-.996-1.868-2.228-2.088-2.604-.22-.376-.024-.58.164-.768.168-.168.376-.44.564-.66.188-.22.252-.376.376-.628.124-.252.062-.472-.032-.66-.094-.188-.848-2.044-1.16-2.796-.304-.732-.612-.632-.848-.644-.22-.012-.472-.012-.724-.012s-.66.094-1.004.472c-.344.376-1.316 1.284-1.316 3.132s1.348 3.632 1.536 3.884c.188.252 2.652 4.048 6.424 5.676.898.388 1.6.62 2.148.792.9.284 1.72.244 2.368.148.724-.108 2.22-.908 2.532-1.784.312-.876.312-1.628.22-1.784-.092-.156-.344-.252-.72-.44z"/>
+  </svg>
+  <span>WhatsApp</span>
+</a>
+
+<style>
+.whatsapp-float {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background: #25D366;
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  z-index: 999;
+  text-decoration: none;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+}
+
+.whatsapp-float span {
+  display: none;
+}
+
+.whatsapp-float:hover span {
+  display: block;
+  position: absolute;
+  right: 70px;
+  background: #25D366;
+  padding: 8px 16px;
+  border-radius: 20px;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .whatsapp-float {
+    width: 56px;
+    height: 56px;
+    bottom: 70px;
+    right: 16px;
+  }
+}
+</style>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+4. PRODUKT-EMPFEHLUNGEN (KI-basiert oder einfach)
+--------------------------------------------------------------------------------
+"Das könnte dir auch gefallen" Section auf Produktseite
+{%- endcomment -%}
+
+<div class="product-recommendations">
+  <h3>Das könnte dir auch gefallen</h3>
+
+  <div class="recommendations-grid">
+    {%- comment -%} Shopify's native recommendations (AI-powered) {%- endcomment -%}
+    {%- assign recommendations = product | product_recommendations | default: collections.all.products | limit: 4 -%}
+
+    {%- for recommended_product in recommendations -%}
+      <a href="{{ recommended_product.url }}" class="recommendation-card">
+        <img
+          src="{{ recommended_product.featured_image | img_url: '400x400' }}"
+          alt="{{ recommended_product.title }}"
+          loading="lazy"
+        >
+        <div class="recommendation-title">{{ recommended_product.title | truncate: 40 }}</div>
+        <div class="recommendation-price">{{ recommended_product.price | money }}</div>
+      </a>
+    {%- endfor -%}
+  </div>
+</div>
+
+<style>
+.product-recommendations {
+  margin: 60px 0;
+  padding: 40px 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.product-recommendations h3 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.recommendation-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s;
+}
+
+.recommendation-card:hover {
+  transform: translateY(-4px);
+}
+
+.recommendation-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.recommendation-title {
+  font-size: 14px;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+
+.recommendation-price {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .recommendations-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+}
+</style>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+5. RABATTCODE KOPIEREN BUTTON
+--------------------------------------------------------------------------------
+Macht es einfach Codes zu kopieren und zu teilen
+{%- endcomment -%}
+
+<div class="discount-code-banner">
+  <div class="discount-info">
+    <span class="discount-emoji">🎉</span>
+    <div>
+      <strong>Spare 10% mit Code:</strong>
+      <code class="discount-code" id="discountCode">WELCOME10</code>
+    </div>
+  </div>
+  <button class="copy-code-btn" onclick="copyDiscountCode()">
+    Kopieren
+  </button>
+</div>
+
+<style>
+.discount-code-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+  gap: 16px;
+}
+
+.discount-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.discount-emoji {
+  font-size: 32px;
+}
+
+.discount-code {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-left: 8px;
+}
+
+.copy-code-btn {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.2s;
+}
+
+.copy-code-btn:hover {
+  transform: scale(1.05);
+}
+
+.copy-code-btn:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 640px) {
+  .discount-code-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .discount-info {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .copy-code-btn {
+    width: 100%;
+  }
+}
+</style>
+
+<script>
+function copyDiscountCode() {
+  const code = document.getElementById('discountCode').textContent;
+  navigator.clipboard.writeText(code);
+
+  const btn = document.querySelector('.copy-code-btn');
+  const originalText = btn.textContent;
+  btn.textContent = '✓ Kopiert!';
+  btn.style.background = '#22c55e';
+  btn.style.color = 'white';
+
+  setTimeout(() => {
+    btn.textContent = originalText;
+    btn.style.background = 'white';
+    btn.style.color = '#667eea';
+  }, 2000);
+}
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+6. REFERRAL PROGRAM (Freunde Werben)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+<div class="referral-section">
+  <h3>🎁 Freunde einladen & 10 CHF erhalten</h3>
+  <p>Teile ikaufen.ch mit deinen Freunden und erhalte 10 CHF Guthaben für jeden Kauf!</p>
+
+  <div class="referral-share">
+    <input
+      type="text"
+      value="https://ikaufen.ch?ref=KUNDE123"
+      readonly
+      class="referral-link"
+      id="referralLink"
+    >
+    <button onclick="copyReferralLink()" class="referral-copy-btn">
+      Link kopieren
+    </button>
+  </div>
+
+  <div class="referral-social">
+    <span>Oder teile via:</span>
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https://ikaufen.ch?ref=KUNDE123" target="_blank" class="social-btn facebook">Facebook</a>
+    <a href="https://wa.me/?text=Schau mal bei ikaufen.ch vorbei! https://ikaufen.ch?ref=KUNDE123" target="_blank" class="social-btn whatsapp">WhatsApp</a>
+    <a href="mailto:?subject=Schau dir ikaufen.ch an&body=Hey! Ich habe einen coolen Online-Shop gefunden: https://ikaufen.ch?ref=KUNDE123" class="social-btn email">E-Mail</a>
+  </div>
+</div>
+
+<style>
+.referral-section {
+  background: #f9fafb;
+  padding: 32px;
+  border-radius: 12px;
+  margin: 40px 0;
+  text-align: center;
+}
+
+.referral-section h3 {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.referral-section p {
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.referral-share {
+  display: flex;
+  gap: 12px;
+  max-width: 500px;
+  margin: 0 auto 24px;
+}
+
+.referral-link {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+}
+
+.referral-copy-btn {
+  background: #000;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.referral-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.referral-social span {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.social-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.social-btn:hover {
+  opacity: 0.85;
+}
+
+.social-btn.facebook { background: #1877f2; }
+.social-btn.whatsapp { background: #25d366; }
+.social-btn.email { background: #6b7280; }
+
+@media (max-width: 640px) {
+  .referral-section {
+    padding: 24px 16px;
+  }
+
+  .referral-share {
+    flex-direction: column;
+  }
+
+  .referral-copy-btn {
+    width: 100%;
+  }
+}
+</style>
+
+<script>
+function copyReferralLink() {
+  const link = document.getElementById('referralLink');
+  link.select();
+  navigator.clipboard.writeText(link.value);
+
+  const btn = document.querySelector('.referral-copy-btn');
+  btn.textContent = '✓ Kopiert!';
+  setTimeout(() => {
+    btn.textContent = 'Link kopieren';
+  }, 2000);
+}
+</script>
+
+
+{%- comment -%}
+================================================================================
+MARKETING INTEGRATION TOOLS (Apps & Services)
+================================================================================
+
+□ EMAIL MARKETING:
+  ✅ Klaviyo (Empfohlen für E-Commerce)
+  ✅ Mailchimp
+  ✅ Omnisend
+  → Automated Flows: Welcome, Abandoned Cart, Post-Purchase, Win-Back
+
+□ REVIEWS & SOCIAL PROOF:
+  ✅ Judge.me (Beste Free Option)
+  ✅ Loox (Foto-Reviews)
+  ✅ Yotpo
+  → Auto-Request Reviews 7 Tage nach Kauf
+
+□ LIVE CHAT:
+  ✅ Tidio (Free Plan verfügbar)
+  ✅ Gorgias
+  ✅ Zendesk Chat
+  → 24/7 Chatbot + WhatsApp Integration
+
+□ ABANDONED CART:
+  ✅ Klaviyo (Email + SMS)
+  ✅ Shopify Email (Gratis)
+  → Serie: 1h, 24h, 72h nach Abandon
+
+□ UPSELL/CROSS-SELL:
+  ✅ ReConvert (Post-Purchase)
+  ✅ Bold Upsell
+  ✅ PickyStory (Bundles)
+
+□ LOYALTY PROGRAM:
+  ✅ Smile.io
+  ✅ LoyaltyLion
+  ✅ Yotpo Loyalty
+  → Punkte für Käufe, Reviews, Referrals
+
+□ SMS MARKETING:
+  ✅ Klaviyo (Email + SMS)
+  ✅ Postscript
+  ✅ SMSBump
+  → Schweiz: Beachte Swiss Direct Marketing Laws!
+
+□ INSTAGRAM SHOP:
+  ✅ Instagram Shopping aktivieren
+  ✅ Facebook Shops
+  ✅ TikTok Shop (falls Zielgruppe passt)
+
+================================================================================
+CONTENT MARKETING IDEEN:
+================================================================================
+
+1. BLOG:
+   - "10 Tipps für..." (SEO Content)
+   - Produkt-Guides
+   - Behind-the-Scenes
+   - Kunden-Stories
+
+2. INSTAGRAM:
+   - Produkt-Posts (hochwertige Fotos)
+   - Reels (Trends, How-To, Unboxing)
+   - Stories (Polls, Q&A, Behind-Scenes)
+   - User-Generated Content teilen
+
+3. TIKTOK:
+   - Produkt-Demos
+   - "Day in the Life"
+   - Trends mitmachen
+   - Challenges
+
+4. YOUTUBE:
+   - Produkt-Reviews
+   - Tutorials
+   - Unboxing Videos
+   - FAQ Videos
+
+5. GOOGLE MY BUSINESS:
+   - Profil anlegen (wichtig für Local SEO!)
+   - Fotos hochladen
+   - Reviews sammeln
+   - Posts veröffentlichen
+
+================================================================================
+{%- endcomment -%}
