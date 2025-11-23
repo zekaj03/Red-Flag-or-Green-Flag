@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚩 Red Flag or Green Flag? ✅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'red-flag': '#FF4458',
+                        'green-flag': '#00D68F',
+                        'bg-dark': '#1A1A1D',
+                        'card-dark': '#2D2D30',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-bg-dark text-white min-h-screen">
+    <div id="app"></div>
+
+    <script>
+        // Seed Data
+        const seedSubmissions = [
+            { id: 1, text: "He asked me to split the bill on our first date", category: "Dating/Relationships", votes: { red: 245, green: 432 } },
+            { id: 2, text: "She still talks to her ex every day", category: "Dating/Relationships", votes: { red: 567, green: 123 } },
+            { id: 3, text: "My boss texts me after 10pm about work", category: "Work/Boss", votes: { red: 789, green: 45 } },
+            { id: 4, text: "He remembered my coffee order after the first date", category: "Dating/Relationships", votes: { red: 23, green: 890 } },
+            { id: 5, text: "My roommate uses my stuff without asking", category: "Roommate", votes: { red: 678, green: 89 } },
+            { id: 6, text: "She canceled our plans last minute for the third time", category: "Friendship", votes: { red: 812, green: 34 } },
+            { id: 7, text: "He introduces me to his family after 2 weeks", category: "Dating/Relationships", votes: { red: 456, green: 234 } },
+            { id: 8, text: "My friend borrowed 50€ and hasn't mentioned it in 3 months", category: "Friendship", votes: { red: 723, green: 45 } },
+            { id: 9, text: "She checks my phone when I'm in the shower", category: "Dating/Relationships", votes: { red: 945, green: 12 } },
+            { id: 10, text: "He surprised me with flowers at work", category: "Dating/Relationships", votes: { red: 34, green: 876 } },
+            { id: 11, text: "My landlord enters without 24h notice", category: "Other", votes: { red: 891, green: 23 } },
+            { id: 12, text: "She always pays for dinner without making a big deal", category: "Dating/Relationships", votes: { red: 45, green: 765 } },
+            { id: 13, text: "He follows 500+ Instagram models", category: "Dating/Relationships", votes: { red: 634, green: 234 } },
+            { id: 14, text: "My professor asked me out for coffee", category: "School/Uni", votes: { red: 823, green: 89 } },
+            { id: 15, text: "She respects when I need alone time", category: "Dating/Relationships", votes: { red: 12, green: 923 } },
+            { id: 16, text: "He said 'I love you' on the second date", category: "Dating/Relationships", votes: { red: 678, green: 145 } },
+            { id: 17, text: "My friend only texts when they need something", category: "Friendship", votes: { red: 789, green: 67 } },
+            { id: 18, text: "She communicates clearly instead of playing games", category: "Dating/Relationships", votes: { red: 23, green: 891 } },
+            { id: 19, text: "He gets jealous when I hang out with guy friends", category: "Dating/Relationships", votes: { red: 867, green: 78 } },
+            { id: 20, text: "My boss takes credit for my ideas in meetings", category: "Work/Boss", votes: { red: 934, green: 23 } },
+            { id: 21, text: "She apologizes when she's wrong", category: "Dating/Relationships", votes: { red: 34, green: 823 } },
+            { id: 22, text: "He told me he's 'not ready for labels' after 6 months", category: "Dating/Relationships", votes: { red: 812, green: 89 } },
+            { id: 23, text: "My roommate's partner is here 6 days a week", category: "Roommate", votes: { red: 723, green: 156 } },
+            { id: 24, text: "She encouraged me to pursue my dream job", category: "Dating/Relationships", votes: { red: 12, green: 878 } },
+            { id: 25, text: "He comments 'fire' emojis on other girls' bikini pics", category: "Dating/Relationships", votes: { red: 734, green: 123 } },
+        ];
+
+        // App State
+        let state = {
+            submissions: [...seedSubmissions].sort(() => Math.random() - 0.5),
+            currentIndex: 0,
+            showResults: false,
+            currentResults: null,
+            isPremium: false,
+            dailyVotes: 0,
+            view: 'feed'
+        };
+
+        function calculatePercentages(submission) {
+            const total = submission.votes.red + submission.votes.green;
+            if (total === 0) return { red: 50, green: 50 };
+            return {
+                red: Math.round((submission.votes.red / total) * 100),
+                green: Math.round((submission.votes.green / total) * 100)
+            };
+        }
+
+        function handleVote(voteType) {
+            const current = state.submissions[state.currentIndex];
+            if (!current) return;
+
+            if (!state.isPremium && state.dailyVotes >= 5) {
+                alert('🔒 You\'ve reached your daily limit of 5 votes! Upgrade to Premium for unlimited voting.');
+                return;
+            }
+
+            // Update votes
+            current.votes[voteType]++;
+            state.dailyVotes++;
+
+            // Show results
+            state.showResults = true;
+            state.currentResults = current;
+            render();
+
+            // Auto-advance
+            setTimeout(() => {
+                state.showResults = false;
+                state.currentResults = null;
+                state.currentIndex = (state.currentIndex + 1) % state.submissions.length;
+                render();
+            }, 3000);
+        }
+
+        function upgradeToPremium() {
+            state.isPremium = true;
+            alert('🎉 Welcome to Premium! You now have unlimited votes!');
+            render();
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+            const current = state.submissions[state.currentIndex];
+
+            if (state.showResults && state.currentResults) {
+                const percentages = calculatePercentages(state.currentResults);
+                app.innerHTML = `
+                    <header class="bg-card-dark border-b border-gray-700">
+                        <div class="max-w-6xl mx-auto px-4 py-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-3xl">🚩</span>
+                                    <h1 class="text-2xl font-bold">Red Flag or Green Flag?</h1>
+                                    <span class="text-3xl">✅</span>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    ${!state.isPremium ? `
+                                        <button onclick="upgradeToPremium()" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-semibold hover:opacity-90 transition">
+                                            ⭐ Upgrade to Premium
+                                        </button>
+                                        <span class="text-sm text-gray-400">${5 - state.dailyVotes} votes left today</span>
+                                    ` : `
+                                        <span class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-semibold">⭐ Premium</span>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main class="max-w-2xl mx-auto px-4 py-8">
+                        <div class="space-y-6 animate-fade-in">
+                            <div class="bg-card-dark rounded-2xl p-8 shadow-2xl">
+                                <div class="mb-6">
+                                    <span class="inline-block px-3 py-1 bg-gray-700 rounded-full text-sm text-gray-300">
+                                        ${state.currentResults.category}
+                                    </span>
+                                </div>
+                                <p class="text-xl leading-relaxed mb-6 text-gray-300">
+                                    ${state.currentResults.text}
+                                </p>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <div class="flex justify-between mb-2">
+                                            <span class="flex items-center space-x-2">
+                                                <span class="text-2xl">🚩</span>
+                                                <span class="font-bold">Red Flag</span>
+                                            </span>
+                                            <span class="font-bold text-red-flag">${percentages.red}%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                                            <div class="bg-red-flag h-3 transition-all duration-1000 ease-out" style="width: ${percentages.red}%"></div>
+                                        </div>
+                                        <div class="text-right text-sm text-gray-400 mt-1">
+                                            ${state.currentResults.votes.red.toLocaleString()} votes
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between mb-2">
+                                            <span class="flex items-center space-x-2">
+                                                <span class="text-2xl">✅</span>
+                                                <span class="font-bold">Green Flag</span>
+                                            </span>
+                                            <span class="font-bold text-green-flag">${percentages.green}%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                                            <div class="bg-green-flag h-3 transition-all duration-1000 ease-out" style="width: ${percentages.green}%"></div>
+                                        </div>
+                                        <div class="text-right text-sm text-gray-400 mt-1">
+                                            ${state.currentResults.votes.green.toLocaleString()} votes
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-8 text-center">
+                                    <p class="text-green-flag font-semibold text-lg">✓ Your vote has been recorded!</p>
+                                    <p class="text-gray-400 text-sm mt-2">Loading next situation...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                `;
+            } else if (current) {
+                app.innerHTML = `
+                    <header class="bg-card-dark border-b border-gray-700">
+                        <div class="max-w-6xl mx-auto px-4 py-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-3xl">🚩</span>
+                                    <h1 class="text-2xl font-bold">Red Flag or Green Flag?</h1>
+                                    <span class="text-3xl">✅</span>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    ${!state.isPremium ? `
+                                        <button onclick="upgradeToPremium()" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-semibold hover:opacity-90 transition">
+                                            ⭐ Upgrade to Premium
+                                        </button>
+                                        <span class="text-sm text-gray-400">${5 - state.dailyVotes} votes left today</span>
+                                    ` : `
+                                        <span class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-semibold">⭐ Premium</span>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main class="max-w-2xl mx-auto px-4 py-8">
+                        <div class="space-y-6">
+                            <div class="bg-card-dark rounded-2xl p-8 shadow-2xl">
+                                <div class="mb-4">
+                                    <span class="inline-block px-3 py-1 bg-gray-700 rounded-full text-sm text-gray-300">
+                                        ${current.category}
+                                    </span>
+                                </div>
+                                <p class="text-2xl leading-relaxed mb-8">
+                                    ${current.text}
+                                </p>
+                                <div class="flex justify-between items-center space-x-4">
+                                    <button onclick="handleVote('red')" class="flex-1 bg-red-flag hover:bg-red-600 text-white py-4 px-6 rounded-xl font-bold text-lg transition transform hover:scale-105 flex items-center justify-center space-x-2">
+                                        <span class="text-2xl">🚩</span>
+                                        <span>RED FLAG</span>
+                                    </button>
+                                    
+                                    <button onclick="handleVote('green')" class="flex-1 bg-green-flag hover:bg-green-600 text-white py-4 px-6 rounded-xl font-bold text-lg transition transform hover:scale-105 flex items-center justify-center space-x-2">
+                                        <span class="text-2xl">✅</span>
+                                        <span>GREEN FLAG</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="text-center text-gray-400 text-sm">
+                                Situation ${state.currentIndex + 1} of ${state.submissions.length}
+                            </div>
+
+                            <div class="bg-card-dark rounded-xl p-6 text-center">
+                                <h3 class="text-xl font-bold mb-3">📱 Dies ist eine Demo!</h3>
+                                <p class="text-gray-300 mb-4">
+                                    Die vollständige App enthält Submit-Funktionen, User-Accounts, Comments und mehr!
+                                </p>
+                                <p class="text-sm text-gray-400">
+                                    Öffne das Next.js-Projekt für alle Features.
+                                </p>
+                            </div>
+                        </div>
+                    </main>
+
+                    <footer class="bg-card-dark border-t border-gray-700 mt-16">
+                        <div class="max-w-6xl mx-auto px-4 py-8">
+                            <div class="text-center text-gray-400 space-y-2">
+                                <p class="text-lg font-semibold text-white">Red Flag or Green Flag?</p>
+                                <p class="text-sm">The community helping Gen Z navigate life's tough decisions</p>
+                                <p class="text-xs mt-4">© 2024 Red Flag or Green Flag. All rights reserved.</p>
+                            </div>
+                        </div>
+                    </footer>
+                `;
+            }
+        }
+
+        // Make functions global
+        window.handleVote = handleVote;
+        window.upgradeToPremium = upgradeToPremium;
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
