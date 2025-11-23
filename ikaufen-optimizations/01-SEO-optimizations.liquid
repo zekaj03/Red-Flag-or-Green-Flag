@@ -1,0 +1,259 @@
+{%- comment -%}
+================================================================================
+IKAUFEN.CH - SEO OPTIMIERUNGEN
+================================================================================
+Diese Snippets verbessern das SEO-Ranking von ikaufen.ch
+
+INSTALLATION:
+1. Shopify Admin → Online Store → Themes → Edit Code
+2. Snippets in die entsprechenden Theme-Dateien einfügen
+================================================================================
+{%- endcomment -%}
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+1. OPTIMIERTE META TAGS für theme.liquid (im <head> Bereich)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%} Ersetze die Standard Meta-Tags mit diesen optimierten Versionen {%- endcomment -%}
+
+{%- if template.name == 'index' -%}
+  <meta name="description" content="ikaufen.ch - Ihr Online-Shop für hochwertige Produkte in der Schweiz. ✓ Schneller Versand ✓ Sichere Zahlung ✓ Top Kundenservice">
+  <meta name="keywords" content="Online Shop Schweiz, ikaufen, günstig einkaufen, schneller Versand CH">
+  <title>ikaufen.ch - Online Shopping Schweiz | Hochwertige Produkte</title>
+
+{%- elsif template.name == 'product' -%}
+  <meta name="description" content="{{ product.description | strip_html | truncatewords: 25 }} | Jetzt bei ikaufen.ch kaufen ✓ Schneller Versand ✓ Sichere Zahlung">
+  <title>{{ product.title }} kaufen | ikaufen.ch</title>
+
+{%- elsif template.name == 'collection' -%}
+  <meta name="description" content="{{ collection.description | default: collection.title | strip_html | truncatewords: 25 }} | Entdecken Sie unsere Auswahl bei ikaufen.ch">
+  <title>{{ collection.title }} | ikaufen.ch Online Shop</title>
+
+{%- else -%}
+  <meta name="description" content="{{ page_description | default: shop.description }}">
+  <title>{{ page_title }}{% if current_page != 1 %} - Seite {{ current_page }}{% endif %} | {{ shop.name }}</title>
+{%- endif -%}
+
+{%- comment -%} Hreflang für Mehrsprachigkeit (falls DE/FR/IT/EN) {%- endcomment -%}
+<link rel="alternate" hreflang="de-ch" href="{{ canonical_url }}">
+<link rel="alternate" hreflang="x-default" href="{{ canonical_url }}">
+
+{%- comment -%} Open Graph Tags für Social Media Sharing {%- endcomment -%}
+<meta property="og:site_name" content="{{ shop.name }}">
+<meta property="og:url" content="{{ canonical_url }}">
+<meta property="og:title" content="{{ page_title }}">
+<meta property="og:type" content="website">
+<meta property="og:description" content="{{ page_description | default: shop.description }}">
+{%- if template.name == 'product' -%}
+  <meta property="og:type" content="product">
+  <meta property="og:price:amount" content="{{ product.price | money_without_currency }}">
+  <meta property="og:price:currency" content="{{ shop.currency }}">
+  {%- if product.featured_image -%}
+    <meta property="og:image" content="https:{{ product.featured_image | img_url: '1200x1200' }}">
+    <meta property="og:image:secure_url" content="https:{{ product.featured_image | img_url: '1200x1200' }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="1200">
+  {%- endif -%}
+{%- endif -%}
+
+{%- comment -%} Twitter Card Tags {%- endcomment -%}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ page_title }}">
+<meta name="twitter:description" content="{{ page_description | default: shop.description }}">
+{%- if template.name == 'product' and product.featured_image -%}
+  <meta name="twitter:image" content="https:{{ product.featured_image | img_url: '1200x1200' }}">
+{%- endif -%}
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+2. STRUKTURIERTE DATEN (Schema.org) für bessere Google-Anzeigen
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%} Organization Schema - In theme.liquid vor </head> einfügen {%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "ikaufen.ch",
+  "url": "{{ shop.url }}",
+  "logo": "{{ 'logo.png' | asset_url }}",
+  "description": "{{ shop.description }}",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "CH"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "Customer Service",
+    "availableLanguage": ["German", "English"]
+  },
+  "sameAs": [
+    "https://www.facebook.com/ikaufen",
+    "https://www.instagram.com/ikaufen"
+  ]
+}
+</script>
+
+{%- comment -%} Product Schema - In product.liquid vor </head> oder im Body einfügen {%- endcomment -%}
+{%- if template.name == 'product' -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": {{ product.title | json }},
+  "description": {{ product.description | strip_html | json }},
+  "image": [
+    {%- for image in product.images limit: 3 -%}
+      "https:{{ image | img_url: '1200x1200' }}"{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ],
+  "brand": {
+    "@type": "Brand",
+    "name": {{ product.vendor | json }}
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ shop.url }}{{ product.url }}",
+    "priceCurrency": "{{ shop.currency }}",
+    "price": "{{ product.price | money_without_currency | remove: ',' }}",
+    "priceValidUntil": "{{ 'now' | date: '%s' | plus: 2592000 | date: '%Y-%m-%d' }}",
+    "availability": "{% if product.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+    "itemCondition": "https://schema.org/NewCondition"
+  }
+  {%- if product.metafields.reviews.rating.value -%},
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ product.metafields.reviews.rating.value }}",
+    "reviewCount": "{{ product.metafields.reviews.rating_count.value }}"
+  }
+  {%- endif -%}
+}
+</script>
+{%- endif -%}
+
+{%- comment -%} Breadcrumb Schema {%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ shop.url }}"
+    }
+    {%- if template.name == 'collection' -%},
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": {{ collection.title | json }},
+      "item": "{{ shop.url }}{{ collection.url }}"
+    }
+    {%- elsif template.name == 'product' -%}
+      {%- if collection -%},
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": {{ collection.title | json }},
+        "item": "{{ shop.url }}{{ collection.url }}"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": {{ product.title | json }},
+        "item": "{{ shop.url }}{{ product.url }}"
+      }
+      {%- else -%},
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": {{ product.title | json }},
+        "item": "{{ shop.url }}{{ product.url }}"
+      }
+      {%- endif -%}
+    {%- endif -%}
+  ]
+}
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+3. AUTOMATISCHE ALT-TEXTE FÜR PRODUKTBILDER
+--------------------------------------------------------------------------------
+Verwenden Sie diese Syntax für Produktbilder:
+{%- endcomment -%}
+
+{%- comment -%} Beispiel für product.liquid {%- endcomment -%}
+{%- for image in product.images -%}
+  <img
+    src="{{ image | img_url: '800x800' }}"
+    alt="{{ image.alt | default: product.title | append: ' - ikaufen.ch' }}"
+    loading="lazy"
+    width="800"
+    height="800"
+  >
+{%- endfor -%}
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+4. CANONICAL TAGS (Duplicate Content vermeiden)
+--------------------------------------------------------------------------------
+In theme.liquid im <head>:
+{%- endcomment -%}
+
+<link rel="canonical" href="{{ canonical_url }}">
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+5. ROBOTS META TAG für Suchmaschinen
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- if template.name == 'search' or template.name == 'cart' or template.name == '404' -%}
+  <meta name="robots" content="noindex, follow">
+{%- else -%}
+  <meta name="robots" content="index, follow">
+{%- endif -%}
+
+
+{%- comment -%}
+================================================================================
+ZUSÄTZLICHE SEO-TIPPS für Shopify Admin:
+================================================================================
+
+1. GOOGLE SEARCH CONSOLE einrichten:
+   - Füge deine Website hinzu: https://search.google.com/search-console
+   - Verifiziere mit Google Analytics oder DNS
+   - Sitemap einreichen: https://ikaufen.ch/sitemap.xml
+
+2. PRODUKTBESCHREIBUNGEN optimieren:
+   - Mindestens 150-300 Wörter pro Produkt
+   - Keywords natürlich einbauen
+   - Bullet-Points verwenden
+   - "Kaufen" / "Bestellen" Keywords einbauen
+
+3. URL-STRUKTUR:
+   Shopify Admin → Online Store → Preferences:
+   - ✓ "Shop verwenden statt Kollektionen" deaktivieren
+   - URLs sollten sein: ikaufen.ch/collections/kategorie/products/produkt
+
+4. BLOG starten für Content-Marketing:
+   - Produkt-Guides
+   - How-To Artikel
+   - News & Updates
+   - Interne Verlinkung zu Produkten
+
+5. SITEMAP prüfen:
+   - Automatisch verfügbar unter: ikaufen.ch/sitemap.xml
+   - In Google Search Console einreichen
+
+================================================================================
+{%- endcomment -%}

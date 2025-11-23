@@ -1,0 +1,836 @@
+{%- comment -%}
+================================================================================
+IKAUFEN.CH - MOBILE OPTIMIERUNGEN
+================================================================================
+Über 60% der Käufer sind auf Mobile! Diese Optimierungen sind KRITISCH.
+
+ZIEL: Perfektes Mobile Shopping Erlebnis
+================================================================================
+{%- endcomment -%}
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+1. MOBILE-FIRST CSS (Basis-Styling für Mobile)
+--------------------------------------------------------------------------------
+Füge dies in theme.css oder als <style> Tag in theme.liquid ein
+{%- endcomment -%}
+
+<style>
+/* ========================================
+   MOBILE-FIRST BASE STYLES
+   ======================================== */
+
+/* Touch-friendly Buttons */
+button,
+.btn,
+input[type="submit"] {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px 24px;
+  font-size: 16px; /* Verhindert Auto-Zoom auf iOS */
+  -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+}
+
+/* Touch-friendly Links */
+a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Input Fields (verhindert Zoom auf iOS) */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+}
+
+/* Prevent horizontal scroll */
+body {
+  overflow-x: hidden;
+}
+
+* {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mobile Container */
+.container {
+  padding-left: 16px;
+  padding-right: 16px;
+  max-width: 100%;
+}
+
+/* Hamburger Menu Spacing */
+.mobile-menu {
+  padding: 20px;
+}
+
+.mobile-menu a {
+  display: block;
+  padding: 15px 0;
+  font-size: 18px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Product Grid - Mobile */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 0 12px;
+}
+
+.product-card {
+  padding: 12px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.product-card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.product-title {
+  font-size: 14px;
+  line-height: 1.3;
+  margin: 8px 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.product-price {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Sticky Header auf Mobile */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Bottom Navigation Bar (Mobile) */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0 12px;
+  z-index: 100;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+}
+
+.mobile-bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  text-decoration: none;
+  color: #6b7280;
+  font-size: 11px;
+  transition: color 0.2s;
+}
+
+.mobile-bottom-nav-item.active {
+  color: #000;
+}
+
+.mobile-bottom-nav-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.mobile-bottom-nav-badge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* Tablet & Desktop - Mehr Spalten */
+@media (min-width: 640px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .mobile-bottom-nav {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .container {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+</style>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+2. MOBILE BOTTOM NAVIGATION BAR
+--------------------------------------------------------------------------------
+Füge dies vor </body> in theme.liquid ein
+{%- endcomment -%}
+
+<nav class="mobile-bottom-nav">
+  <a href="/" class="mobile-bottom-nav-item {% if template.name == 'index' %}active{% endif %}">
+    <span class="mobile-bottom-nav-icon">🏠</span>
+    <span>Home</span>
+  </a>
+
+  <a href="/collections/all" class="mobile-bottom-nav-item {% if template.name == 'collection' %}active{% endif %}">
+    <span class="mobile-bottom-nav-icon">🔍</span>
+    <span>Suchen</span>
+  </a>
+
+  <a href="/cart" class="mobile-bottom-nav-item {% if template.name == 'cart' %}active{% endif %}">
+    <span class="mobile-bottom-nav-icon" style="position: relative;">
+      🛒
+      {%- if cart.item_count > 0 -%}
+        <span class="mobile-bottom-nav-badge">{{ cart.item_count }}</span>
+      {%- endif -%}
+    </span>
+    <span>Warenkorb</span>
+  </a>
+
+  <a href="/account" class="mobile-bottom-nav-item {% if template.name == 'customers' %}active{% endif %}">
+    <span class="mobile-bottom-nav-icon">👤</span>
+    <span>Konto</span>
+  </a>
+</nav>
+
+{%- comment -%} Padding unten hinzufügen damit Content nicht hinter Nav verschwindet {%- endcomment -%}
+<style>
+@media (max-width: 639px) {
+  body {
+    padding-bottom: 70px;
+  }
+}
+</style>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+3. MOBILE SWIPEABLE PRODUCT IMAGE GALLERY
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+<div class="mobile-product-gallery">
+  <div class="gallery-wrapper">
+    {%- for image in product.images -%}
+      <div class="gallery-slide">
+        <img
+          src="{{ image | img_url: '800x800' }}"
+          alt="{{ product.title }}"
+          loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+        >
+      </div>
+    {%- endfor -%}
+  </div>
+
+  {%- comment -%} Pagination Dots {%- endcomment -%}
+  <div class="gallery-dots">
+    {%- for image in product.images -%}
+      <span class="gallery-dot {% if forloop.first %}active{% endif %}"></span>
+    {%- endfor -%}
+  </div>
+</div>
+
+<style>
+.mobile-product-gallery {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.gallery-wrapper {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.gallery-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.gallery-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+}
+
+.gallery-slide img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.gallery-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 0;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.gallery-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.6);
+  transition: all 0.3s;
+}
+
+.gallery-dot.active {
+  background: #fff;
+  width: 24px;
+  border-radius: 4px;
+}
+</style>
+
+<script>
+// Update dots on scroll
+(function() {
+  const wrapper = document.querySelector('.gallery-wrapper');
+  const dots = document.querySelectorAll('.gallery-dot');
+
+  if (!wrapper || !dots.length) return;
+
+  wrapper.addEventListener('scroll', () => {
+    const scrollLeft = wrapper.scrollLeft;
+    const slideWidth = wrapper.offsetWidth;
+    const currentIndex = Math.round(scrollLeft / slideWidth);
+
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === currentIndex);
+    });
+  });
+})();
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+4. MOBILE-OPTIMIERTES MEGA MENU / DRAWER MENU
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%} Menu Toggle Button (Hamburger) {%- endcomment -%}
+<button class="mobile-menu-toggle" aria-label="Menu öffnen">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
+
+{%- comment -%} Mobile Drawer Menu {%- endcomment -%}
+<div class="mobile-drawer-overlay"></div>
+<div class="mobile-drawer">
+  <div class="mobile-drawer-header">
+    <h2>Menu</h2>
+    <button class="mobile-drawer-close" aria-label="Menu schließen">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <nav class="mobile-drawer-nav">
+    {%- for link in linklists.main-menu.links -%}
+      <a href="{{ link.url }}" class="mobile-drawer-link">
+        {{ link.title }}
+      </a>
+    {%- endfor -%}
+  </nav>
+</div>
+
+<style>
+.mobile-menu-toggle {
+  background: none;
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.mobile-drawer-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 85%;
+  max-width: 360px;
+  height: 100%;
+  background: #fff;
+  z-index: 1000;
+  overflow-y: auto;
+  transition: left 0.3s ease;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.1);
+}
+
+.mobile-drawer.active {
+  left: 0;
+}
+
+.mobile-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.mobile-drawer-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.mobile-drawer-close {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.mobile-drawer-nav {
+  padding: 10px 0;
+}
+
+.mobile-drawer-link {
+  display: block;
+  padding: 16px 20px;
+  color: #000;
+  text-decoration: none;
+  font-size: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.2s;
+}
+
+.mobile-drawer-link:hover {
+  background: #f9fafb;
+}
+
+@media (min-width: 768px) {
+  .mobile-menu-toggle {
+    display: none;
+  }
+}
+</style>
+
+<script>
+// Mobile Drawer Toggle
+(function() {
+  const toggle = document.querySelector('.mobile-menu-toggle');
+  const drawer = document.querySelector('.mobile-drawer');
+  const overlay = document.querySelector('.mobile-drawer-overlay');
+  const close = document.querySelector('.mobile-drawer-close');
+
+  if (!toggle || !drawer || !overlay) return;
+
+  function openDrawer() {
+    drawer.classList.add('active');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer() {
+    drawer.classList.remove('active');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  toggle.addEventListener('click', openDrawer);
+  close.addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', closeDrawer);
+})();
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+5. MOBILE FILTER DRAWER (Collection Pages)
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+<button class="mobile-filter-button">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path d="M3 4h18M3 12h18M3 20h18" stroke="currentColor" stroke-width="2"/>
+  </svg>
+  Filter & Sortieren
+</button>
+
+<div class="mobile-filter-drawer">
+  <div class="filter-drawer-header">
+    <h3>Filter</h3>
+    <button class="filter-drawer-close">✕</button>
+  </div>
+
+  <div class="filter-drawer-content">
+    {%- comment -%} Preis Filter {%- endcomment -%}
+    <div class="filter-group">
+      <h4>Preis</h4>
+      <label class="filter-checkbox">
+        <input type="checkbox" name="price" value="0-50">
+        <span>0 - 50 CHF</span>
+      </label>
+      <label class="filter-checkbox">
+        <input type="checkbox" name="price" value="50-100">
+        <span>50 - 100 CHF</span>
+      </label>
+      <label class="filter-checkbox">
+        <input type="checkbox" name="price" value="100+">
+        <span>100+ CHF</span>
+      </label>
+    </div>
+
+    {%- comment -%} Sortierung {%- endcomment -%}
+    <div class="filter-group">
+      <h4>Sortieren</h4>
+      <select class="filter-select">
+        <option>Empfohlen</option>
+        <option>Preis: Niedrig - Hoch</option>
+        <option>Preis: Hoch - Niedrig</option>
+        <option>Neueste</option>
+        <option>Bestseller</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="filter-drawer-footer">
+    <button class="btn-secondary">Zurücksetzen</button>
+    <button class="btn-primary">Anwenden</button>
+  </div>
+</div>
+
+<style>
+.mobile-filter-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.mobile-filter-drawer {
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  right: 0;
+  max-height: 80vh;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  z-index: 1001;
+  transition: bottom 0.3s ease;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+}
+
+.mobile-filter-drawer.active {
+  bottom: 0;
+}
+
+.filter-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.filter-drawer-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.filter-drawer-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  padding: 4px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.filter-drawer-content {
+  padding: 20px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.filter-group {
+  margin-bottom: 24px;
+}
+
+.filter-group h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.filter-checkbox input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+.filter-drawer-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-secondary,
+.btn-primary {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-primary {
+  background: #000;
+  color: #fff;
+}
+
+@media (min-width: 768px) {
+  .mobile-filter-button {
+    display: none;
+  }
+
+  .mobile-filter-drawer {
+    position: static;
+    max-height: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+}
+</style>
+
+<script>
+// Filter Drawer Toggle
+(function() {
+  const button = document.querySelector('.mobile-filter-button');
+  const drawer = document.querySelector('.mobile-filter-drawer');
+  const close = document.querySelector('.filter-drawer-close');
+
+  if (!button || !drawer) return;
+
+  button.addEventListener('click', () => {
+    drawer.classList.add('active');
+  });
+
+  close.addEventListener('click', () => {
+    drawer.classList.remove('active');
+  });
+})();
+</script>
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+6. VIEWPORT META TAG (WICHTIG!)
+--------------------------------------------------------------------------------
+Füge dies im <head> von theme.liquid ein (falls nicht vorhanden)
+{%- endcomment -%}
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+
+
+{%- comment -%}
+--------------------------------------------------------------------------------
+7. APPLE/ANDROID WEB APP META TAGS
+--------------------------------------------------------------------------------
+{%- endcomment -%}
+
+{%- comment -%} iOS Web App {%- endcomment -%}
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ikaufen">
+<link rel="apple-touch-icon" href="{{ 'icon-192.png' | asset_url }}">
+
+{%- comment -%} Android Web App {%- endcomment -%}
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+
+
+{%- comment -%}
+================================================================================
+MOBILE OPTIMIZATION CHECKLIST
+================================================================================
+
+□ TOUCH-FRIENDLY:
+  ✅ Alle Buttons min. 44x44px
+  ✅ Genug Abstand zwischen klickbaren Elementen (min 8px)
+  ✅ Sticky "In den Warenkorb" Button
+  ✅ Große Produktbilder (Zoom möglich)
+
+□ NAVIGATION:
+  ✅ Hamburger Menu (Drawer)
+  ✅ Bottom Navigation Bar
+  ✅ Sticky Header
+  ✅ Einfacher Zugriff auf Suche
+  ✅ Warenkorb-Icon mit Counter
+
+□ FORMS & INPUT:
+  ✅ Font-size mindestens 16px (verhindert Zoom auf iOS)
+  ✅ Auto-Complete aktiviert
+  ✅ Passende Keyboard-Types:
+      - type="email" für Email
+      - type="tel" für Telefon
+      - type="number" für Nummern
+  ✅ Labels über Inputs (nicht Placeholders als Labels!)
+
+□ PERFORMANCE:
+  ✅ Bilder optimiert (WebP, responsive)
+  ✅ Lazy Loading aktiv
+  ✅ Ladezeit unter 3 Sekunden
+  ✅ Mobile PageSpeed Score 90+
+
+□ GESTURES:
+  ✅ Swipe für Produktbilder
+  ✅ Pull-to-Refresh (Browser default)
+  ✅ Pinch-to-Zoom für Produktbilder
+  ✅ Keine horizontalen Scrolls (außer Galerien)
+
+□ CHECKOUT:
+  ✅ Express Checkout (Apple Pay, Google Pay)
+  ✅ Auto-Fill aktiviert
+  ✅ Minimal Form Fields
+  ✅ Große "Jetzt kaufen" Buttons
+  ✅ Fortschrittsanzeige
+
+□ TESTING:
+  ✅ iPhone (Safari)
+  ✅ Android (Chrome)
+  ✅ iPad (Safari)
+  ✅ Verschiedene Bildschirmgrößen (320px - 428px)
+
+================================================================================
+MOBILE TESTING TOOLS:
+================================================================================
+
+1. Browser DevTools Mobile Emulator
+   - Chrome DevTools (F12 → Device Toolbar)
+   - Safari Developer Tools
+
+2. Real Device Testing
+   - BrowserStack (browserstack.com)
+   - LambdaTest (lambdatest.com)
+
+3. Google Mobile-Friendly Test
+   https://search.google.com/test/mobile-friendly
+
+4. PageSpeed Insights Mobile
+   https://pagespeed.web.dev/
+
+5. Shopify Theme Inspector (Chrome Extension)
+   Für Mobile Performance Debugging
+
+================================================================================
+QUICK WINS:
+================================================================================
+
+1. ✅ Bottom Navigation Bar hinzufügen (Code oben)
+2. ✅ Sticky "In den Warenkorb" Button (siehe Conversion-Datei)
+3. ✅ Touch-Target Größen erhöhen (min 44px)
+4. ✅ Viewport Meta Tag prüfen
+5. ✅ Input Font-Size auf 16px setzen
+6. ✅ Lazy Loading für Bilder aktivieren
+7. ✅ Express Checkout Buttons aktivieren (Shopify Admin)
+
+================================================================================
+{%- endcomment -%}
