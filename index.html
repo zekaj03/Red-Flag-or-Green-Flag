@@ -11,12 +11,20 @@
         <h1>🚩 Red Flag • 🌀 Green Flag</h1>
         <p class="subtitle">Deine schnelle Entscheidungshilfe</p>
         
+        <div class="examples">
+            <p>Beispiele (klicken):</p>
+            <button onclick="loadExample(0)">Partner ignoriert mich</button>
+            <button onclick="loadExample(1)">Neuer Job mit gutem Team</button>
+            <button onclick="loadExample(2)">Viele Schulden & Stress</button>
+            <button onclick="loadExample(3)">Offene Kommunikation & Sport</button>
+        </div>
+
         <div class="input-section">
-            <textarea id="scenario" placeholder="Beschreibe dein Szenario... z.B. 'Mein Partner ignoriert meine Nachrichten seit 3 Tagen'" rows="4"></textarea>
+            <textarea id="scenario" placeholder="Beschreibe dein Szenario..." rows="4"></textarea>
             <button onclick="analyzeFlags()">🔍 Analysieren</button>
         </div>
         
-        <div id="result" class="result hidden">
+        <div id="result" class="result">
             <div class="flags">
                 <div class="flag red">
                     <h2>🚩 Red Flags</h2>
@@ -34,5 +42,17 @@
         </div>
     </div>
     <script src="app.js"></script>
+    <script>
+        function loadExample(n) {
+            const examples = [
+                'Mein Partner ignoriert meine Nachrichten seit 3 Tagen und lügt oft',
+                'Neuer Job mit gutem Team, Wachstum und Work-Life-Balance',
+                'Viele Schulden durch Überstunden und hoher Stress',
+                'Offene Kommunikation, regelmäßig Sport und stabile Finanzen'
+            ];
+            document.getElementById('scenario').value = examples[n];
+            analyzeFlags();
+        }
+    </script>
 </body>
 </html>
