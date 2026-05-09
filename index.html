@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Flag • Green Flag</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🚩 Red Flag • 🌀 Green Flag</h1>
+        <p class="subtitle">Deine schnelle Entscheidungshilfe</p>
+        
+        <div class="input-section">
+            <textarea id="scenario" placeholder="Beschreibe dein Szenario... z.B. 'Mein Partner ignoriert meine Nachrichten seit 3 Tagen'" rows="4"></textarea>
+            <button onclick="analyzeFlags()">🔍 Analysieren</button>
+        </div>
+        
+        <div id="result" class="result hidden">
+            <div class="flags">
+                <div class="flag red">
+                    <h2>🚩 Red Flags</h2>
+                    <ul id="red-flags"></ul>
+                </div>
+                <div class="flag green">
+                    <h2>🌀 Green Flags</h2>
+                    <ul id="green-flags"></ul>
+                </div>
+            </div>
+            <div class="verdict">
+                <h3>Verdikt: <span id="verdict"></span></h3>
+            </div>
+            <button onclick="resetApp()">Neu starten</button>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
