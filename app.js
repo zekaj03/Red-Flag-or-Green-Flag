@@ -1,5 +1,5 @@
 function analyzeFlags() {
-    const scenario = document.getElementById('scenario').value.trim();
+    const scenario = document.getElementById('scenario').value.trim().toLowerCase();
     if (!scenario) {
         alert('Bitte gib ein Szenario ein!');
         return;
@@ -13,51 +13,102 @@ function analyzeFlags() {
     redList.innerHTML = '';
     greenList.innerHTML = '';
 
-    // Einfache Keyword-basierte Analyse (Mock für Demo)
-    const lower = scenario.toLowerCase();
     let redFlags = [];
     let greenFlags = [];
+    let score = 0;
 
-    if (lower.includes('ignoriert') || lower.includes('ghost') || lower.includes('nicht antwortet')) {
-        redFlags.push('Kommunikation gestört – schlechtes Zeichen');
-        redFlags.push('Mögliche emotionale Distanz');
-    }
-    if (lower.includes('job') || lower.includes('arbeit') || lower.includes('umzug')) {
-        greenFlags.push('Neue Chance & Wachstum');
-        greenFlags.push('Mut zur Veränderung');
-    }
-    if (lower.includes('partner') || lower.includes('freund') || lower.includes('beziehung')) {
-        if (redFlags.length === 0) greenFlags.push('Offene Kommunikation möglich');
-    }
-    if (lower.includes('geld') || lower.includes('schulden')) {
-        redFlags.push('Finanzielle Unsicherheit');
+    // Erweiterte Logik: Kategorien + Keywords + Gewichtung
+    const categories = {
+        relationship: {
+            red: ['ignoriert', 'ghost', 'nicht antwortet', 'lügt', 'betrügt', 'kontrolliert', 'eifersüchtig', 'streitet ständig', 'keine zeit', 'geheimnisse'],
+            green: ['kommuniziert offen', 'unterstützt', 'verbringt zeit', 'respektiert', 'ehrlich', 'gemeinsame ziele', 'lächelt oft', 'hört zu'],
+            weight: 2
+        },
+        career: {
+            red: ['keine zukunft', 'toxisch', 'überstunden', 'kein wachstum', 'boss mobbt', 'unsicher', 'burnout'],
+            green: ['neue chance', 'wachstum', 'gute kollegen', 'flexibel', 'gute bezahlung', 'lernmöglichkeiten', 'work-life-balance'],
+            weight: 1.5
+        },
+        finance: {
+            red: ['schulden', 'geldprobleme', 'versteckte kosten', 'kein budget', 'teuer ohne grund'],
+            green: ['spart', 'investiert', 'transparente finanzen', 'gute planung', 'stabile einkünfte'],
+            weight: 1
+        },
+        health: {
+            red: ['drogen', 'alkohol', 'kein sport', 'schlechter schlaf', 'stress', 'unhealthy habits'],
+            green: ['sportlich', 'gesund', 'ausgewogen', 'mentale gesundheit', 'energie'],
+            weight: 1
+        },
+        social: {
+            red: ['isoliert', 'schlechte freunde', 'kein netzwerk', 'negativ', 'manipulativ'],
+            green: ['gute freunde', 'familie', 'netzwerk', 'positiv', 'hilfsbereit'],
+            weight: 1
+        }
+    };
+
+    // Prüfe jede Kategorie
+    for (const [cat, data] of Object.entries(categories)) {
+        data.red.forEach(kw => {
+            if (scenario.includes(kw)) {
+                redFlags.push(`${kw} (${cat})`);
+                score -= data.weight;
+            }
+        });
+        data.green.forEach(kw => {
+            if (scenario.includes(kw)) {
+                greenFlags.push(`${kw} (${cat})`);
+                score += data.weight;
+            }
+        });
     }
 
-    // Fallbacks
-    if (redFlags.length === 0) redFlags.push('Keine offensichtlichen Warnsignale');
-    if (greenFlags.length === 0) greenFlags.push('Positive Aspekte erkennbar');
+    // Fallbacks & Zufalls-Flags bei wenig Treffern
+    if (redFlags.length === 0) {
+        redFlags.push('Keine starken Warnsignale erkannt');
+    }
+    if (greenFlags.length === 0) {
+        greenFlags.push('Positive Potenziale vorhanden');
+    }
 
+    // Zeige Flags
     redFlags.forEach(flag => {
         const li = document.createElement('li');
         li.textContent = flag;
         redList.appendChild(li);
     });
-
     greenFlags.forEach(flag => {
         const li = document.createElement('li');
         li.textContent = flag;
         greenList.appendChild(li);
     });
 
-    const score = greenFlags.length - redFlags.length;
-    let verdict = score > 0 ? '🌀 GREEN FLAG – Weiter so!' : (score < 0 ? '🚩 RED FLAG – Vorsicht!' : '⚠️ MIXED – Abwägen');
-    verdictSpan.textContent = verdict;
-    verdictSpan.style.color = score > 0 ? '#2ed573' : (score < 0 ? '#ff4757' : '#ffd93d');
+    // Verbessertes Verdikt mit Prozent-Score
+    const total = Math.max(redFlags.length + greenFlags.length, 1);
+    const percent = Math.round(((score + 10) / 20) * 100); // Normiert auf 0-100
+    let verdictText = '';
+    let color = '';
 
-    resultDiv.classList.remove('hidden');
+    if (percent >= 70) {
+        verdictText = `🟢 STARKER GREEN FLAG (${percent}%) – Stark positiv!`;
+        color = '#2ed573';
+    } else if (percent >= 50) {
+        verdictText = `🟢 GREEN FLAG (${percent}%) – Meistens gut`;
+        color = '#2ed573';
+    } else if (percent >= 30) {
+        verdictText = `⚠️ MIXED (${percent}%) – Abwägen`;
+        color = '#ffd93d';
+    } else {
+        verdictText = `🚩 RED FLAG (${percent}%) – Starke Warnsignale`;
+        color = '#ff4757';
+    }
+
+    verdictSpan.textContent = verdictText;
+    verdictSpan.style.color = color;
+
+    resultDiv.style.display = 'block';
 }
 
 function resetApp() {
     document.getElementById('scenario').value = '';
-    document.getElementById('result').classList.add('hidden');
+    document.getElementById('result').style.display = 'none';
 }
